@@ -14,7 +14,7 @@ CLI = Command(execution_environment=False).join()
 steps = (
     Step(user_input=CLI, comment="welcome screen"),
     Step(
-        user_input=":config",
+        user_input=":config --ee False",
         comment="enter config from welcome screen",
         mask=False,
         look_fors=["/home/user/.ansible/plugins/become"],
