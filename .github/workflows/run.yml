@@ -20,6 +20,8 @@ jobs:
           brew install docker docker-machine
           docker-machine create --driver virtualbox default
           docker-machine env default
+          eval $(docker-machine env default)
+          docker --version
         if: matrix.os == 'macos-latest'
       - name: Setup Python
         uses: actions/setup-python@v2
