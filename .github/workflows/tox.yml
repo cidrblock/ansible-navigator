@@ -6,6 +6,9 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: /workdir
     strategy:
       matrix:
         python: [3.7, 3.8, 3.9]
