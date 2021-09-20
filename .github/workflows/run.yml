@@ -34,6 +34,7 @@ jobs:
           # Show info
           docker-machine ls
           docker-machine env default
+          docker ps
           docker version
 
         if: matrix.os == 'macos-latest'
