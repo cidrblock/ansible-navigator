@@ -19,6 +19,7 @@ jobs:
           curl -Lo ~/.docker/machine/cache/boot2docker.iso https://github.com/boot2docker/boot2docker/releases/download/v19.03.12/boot2docker.iso
           brew install docker docker-machine
           brew services start docker-machine
+          sudo docker –version
         if: matrix.os == 'macos-latest'
       - name: Setup Python
         uses: actions/setup-python@v2
