@@ -22,6 +22,8 @@ jobs:
           docker-machine env default
           eval $(docker-machine env default)
           docker --version
+          unset DOCKER_HOST
+          docker --version
         if: matrix.os == 'macos-latest'
       - name: Setup Python
         uses: actions/setup-python@v2
