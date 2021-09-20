@@ -14,7 +14,7 @@ CLI = Command(execution_environment=False).join()
 steps = (
     Step(user_input=CLI, comment="welcome screen"),
     Step(
-        user_input=":config --ee False",
+        user_input=":config",
         comment="enter config from welcome screen",
         mask=False,
         look_fors=["ANSIBLE_CACHE_PLUGIN_TIMEOUT", "42"],
