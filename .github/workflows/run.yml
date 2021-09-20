@@ -21,8 +21,20 @@ jobs:
           docker-machine create --driver virtualbox default
           docker-machine env default
           eval $(docker-machine env default)
-          docker --version
-          sudo docker ps
+          DOCKER_TLS_VERIFY="$( docker-machine env default | grep DOCKER_TLS_VERIFY | sed -e 's/.*="//g' -e 's/"$//g' )"
+          DOCKER_HOST="$( docker-machine env default | grep DOCKER_HOST | sed -e 's/.*="//g' -e 's/"$//g' )"
+          DOCKER_CERT_PATH="$( docker-machine env default | grep DOCKER_CERT_PATH | sed -e 's/.*="//g' -e 's/"$//g' )"
+          DOCKER_MACHINE_NAME="$( docker-machine env default | grep DOCKER_MACHINE_NAME | sed -e 's/.*="//g' -e 's/"$//g' )"
+          # Export variable (this other targets)
+          # https://help.github.com/en/actions/automating-your-workflow-with-github-actions/development-tools-for-github-actions#set-an-environment-variable-set-env
+          echo ::set-env name=DOCKER_TLS_VERIFY::${DOCKER_TLS_VERIFY}
+          echo ::set-env name=DOCKER_HOST::${DOCKER_HOST}
+          echo ::set-env name=DOCKER_CERT_PATH::${DOCKER_CERT_PATH}
+          echo ::set-env name=DOCKER_MACHINE_NAME::${DOCKER_MACHINE_NAME}
+          # Show info
+          docker-machine ls
+          docker-machine env default
+          docker version
 
         if: matrix.os == 'macos-latest'
       - name: Setup Python
