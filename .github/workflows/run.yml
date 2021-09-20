@@ -27,10 +27,10 @@ jobs:
           DOCKER_MACHINE_NAME="$( docker-machine env default | grep DOCKER_MACHINE_NAME | sed -e 's/.*="//g' -e 's/"$//g' )"
           # Export variable (this other targets)
           # https://help.github.com/en/actions/automating-your-workflow-with-github-actions/development-tools-for-github-actions#set-an-environment-variable-set-env
-          echo "DOCKER_TLS_VERIFY={DOCKER_TLS_VERIFY}" >> $GITHUB_ENV
-          echo "DOCKER_HOST={DOCKER_HOST}" >> $GITHUB_ENV
-          echo "DOCKER_CERT_PATH={DOCKER_CERT_PATH}" >> $GITHUB_ENV
-          echo "DOCKER_MACHINE_NAME={DOCKER_MACHINE_NAME}" >> $GITHUB_ENV
+          echo "DOCKER_TLS_VERIFY=${DOCKER_TLS_VERIFY}" >> $GITHUB_ENV
+          echo "DOCKER_HOST=${DOCKER_HOST}" >> $GITHUB_ENV
+          echo "DOCKER_CERT_PATH=${DOCKER_CERT_PATH}" >> $GITHUB_ENV
+          echo "DOCKER_MACHINE_NAME=${DOCKER_MACHINE_NAME}" >> $GITHUB_ENV
           # Show info
           docker-machine ls
           docker-machine env default
@@ -44,7 +44,7 @@ jobs:
       - name: Install tox and any other packages
         run: pip install tox
       - name: Run env
-        run: env
+        run: env | sort
       - name: Run tox
         # Run tox using the version of Python in `PATH`
         run: tox -e py
