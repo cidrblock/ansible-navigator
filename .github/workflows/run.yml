@@ -24,6 +24,8 @@ jobs:
           docker --version
           unset DOCKER_HOST
           docker --version
+          docker ps
+
         if: matrix.os == 'macos-latest'
       - name: Setup Python
         uses: actions/setup-python@v2
