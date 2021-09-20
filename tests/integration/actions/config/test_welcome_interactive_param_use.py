@@ -18,7 +18,6 @@ steps = (
         comment="enter config from welcome screen",
         mask=False,
         look_fors=["/home/user/.ansible/plugins/become"],
-],
     ),
     Step(user_input=":back", comment="return to welcome screen"),
     Step(
