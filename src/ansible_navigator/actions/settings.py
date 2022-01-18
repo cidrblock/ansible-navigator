@@ -4,6 +4,7 @@ from typing import Any
 from typing import Dict
 from typing import List
 from typing import Union
+from typing import Tuple
 
 from types import SimpleNamespace
 
@@ -18,10 +19,17 @@ from ..ui_framework import Interaction
 from .._yaml import human_dump
 
 
+
 def filter_content_keys(obj: Dict[Any, Any]) -> Dict[Any, Any]:
     """Filter out some keys when showing content."""
     return {k: v for k, v in obj.items() if not k.startswith("__")}
 
+def color_menu(colno: int, colname: str, entry: Dict[str, Any]) -> Tuple[int, int]:
+
+    """color the menu"""
+    #if entry["__default"] is False:     #uncomment when column __default is added
+    #    return 3, 0
+    return 2, 0
 
 class HumanReadableEntry(SimpleNamespace):
     # pylint: disable=too-few-public-methods
@@ -29,6 +37,9 @@ class HumanReadableEntry(SimpleNamespace):
     name: str
     description: str
     cli_parameters: Dict[str, str]
+    current_value: Any
+    default_value: Any
+    source: str
 
 
 @actions.register
@@ -78,7 +89,7 @@ class Action(App):
         """Build the main menu of settings."""
         return Step(
             name="all_options",
-            columns=["name", "description"],
+            columns=["name", "description", "def"],
             select_func=self._build_settings_content,
             tipe="menu",
             value=self._settings,
@@ -109,8 +120,8 @@ class Action(App):
                 result = self._interaction.ui.show(
                     obj=self.steps.current.value,
                     columns=self.steps.current.columns,
-                    # TODO color the menu
-                    # color_menu_item=color_menu,
+                    # TODO color the menu - green (default)/ yellow (changed) --> COMPLETE
+                    color_menu_item=color_menu,
                 )
             elif self.steps.current.type == "content":
                 result = self._interaction.ui.show(
@@ -136,6 +147,8 @@ class Action(App):
             # basic information
             new_entry.name = current_entry.name
             new_entry.description = current_entry.short_description
+            new_entry.default_value = "TEST"
+
             # the CLI parameters
             if isinstance(current_entry.cli_parameters, CliParameters):
                 # TODO: fix --playbook short
