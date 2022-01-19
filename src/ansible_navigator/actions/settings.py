@@ -18,8 +18,7 @@ from ..steps import Step
 from ..ui_framework import Interaction
 from .._yaml import human_dump
 
-
-
+# use if needed
 def filter_content_keys(obj: Dict[Any, Any]) -> Dict[Any, Any]:
     """Filter out some keys when showing content."""
     return {k: v for k, v in obj.items() if not k.startswith("__")}
@@ -89,7 +88,7 @@ class Action(App):
         """Build the main menu of settings."""
         return Step(
             name="all_options",
-            columns=["name", "description", "def"],
+            columns=["name", "description", "default_value", "current_value", "source"],
             select_func=self._build_settings_content,
             tipe="menu",
             value=self._settings,
@@ -120,7 +119,7 @@ class Action(App):
                 result = self._interaction.ui.show(
                     obj=self.steps.current.value,
                     columns=self.steps.current.columns,
-                    # TODO color the menu - green (default)/ yellow (changed) --> COMPLETE
+                    # TODO color the menu - green (default)/ yellow (changed)
                     color_menu_item=color_menu,
                 )
             elif self.steps.current.type == "content":
@@ -147,7 +146,16 @@ class Action(App):
             # basic information
             new_entry.name = current_entry.name
             new_entry.description = current_entry.short_description
-            new_entry.default_value = "TEST"
+            new_entry.source = current_entry.value.source
+            new_entry.current_value = current_entry.value.current
+            
+
+            """Conditional to check for the default value of a setting"""
+            if(current_entry.value.default is current_entry.value.current):
+                new_entry.default_value = True
+            else:
+                new_entry.default_value = False
+            
 
             # the CLI parameters
             if isinstance(current_entry.cli_parameters, CliParameters):
