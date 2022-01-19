@@ -190,7 +190,7 @@ class Action(ActionBase):
         """
         return Step(
             name="all_options",
-            columns=["option", "__default", "source", "via", "__current_value"],
+            columns=["option", "default", "source", "via", "__current_value"],
             select_func=self._build_option_content,
             step_type="menu",
             value=self._config,
