@@ -26,8 +26,8 @@ def filter_content_keys(obj: Dict[Any, Any]) -> Dict[Any, Any]:
 def color_menu(colno: int, colname: str, entry: Dict[str, Any]) -> Tuple[int, int]:
 
     """color the menu"""
-    #if entry["__default"] is False:     #uncomment when column __default is added
-    #    return 3, 0
+    if entry["default"] is False:     #uncomment when column __default is added
+        return 3, 0
     return 2, 0
 
 class HumanReadableEntry(SimpleNamespace):
@@ -38,6 +38,7 @@ class HumanReadableEntry(SimpleNamespace):
     cli_parameters: Dict[str, str]
     current_value: Any
     default_value: Any
+    default: Any
     source: str
 
 
@@ -88,7 +89,7 @@ class Action(App):
         """Build the main menu of settings."""
         return Step(
             name="all_options",
-            columns=["name", "description", "default_value", "current_value", "source"],
+            columns=["name", "default", "source", "current_value"],
             select_func=self._build_settings_content,
             tipe="menu",
             value=self._settings,
@@ -143,19 +144,26 @@ class Action(App):
         settings = []
         for current_entry in self.app.args.entries:
             new_entry = HumanReadableEntry()
-            # basic information
+        
+            """Build the column data"""
             new_entry.name = current_entry.name
             new_entry.description = current_entry.short_description
             new_entry.source = current_entry.value.source
             new_entry.current_value = current_entry.value.current
+            # new_entry.default_value = current_entry.value.default
             
-
-            """Conditional to check for the default value of a setting"""
-            if(current_entry.value.default is current_entry.value.current):
-                new_entry.default_value = True
+            for var in new_entry.__dict__:
+                if ("NOT_SET" in str(getattr(new_entry, var))):
+                    setattr(new_entry, var, "not set")
+                elif ("DEFAULT" in str(getattr(new_entry, var))):
+                    setattr(new_entry, var, "default")
+                
+            if("not set" in str(new_entry.source)):
+                new_entry.default = True
+            elif("default" in str(new_entry.source)):
+                new_entry.default = True
             else:
-                new_entry.default_value = False
-            
+                new_entry.default = False
 
             # the CLI parameters
             if isinstance(current_entry.cli_parameters, CliParameters):
