@@ -1,5 +1,7 @@
-"""The ``settings`` subcommand action.
-"""
+"""The ``settings`` subcommand action. """
+
+import curses
+
 from typing import Any
 from typing import Dict
 from typing import List
@@ -15,6 +17,8 @@ from ..app import App
 from ..app_public import AppPublic
 from ..configuration_subsystem.definitions import CliParameters
 from ..steps import Step
+from ..ui_framework import CursesLinePart
+from ..ui_framework import CursesLines
 from ..ui_framework import Interaction
 from .._yaml import human_dump
 
@@ -26,9 +30,46 @@ def filter_content_keys(obj: Dict[Any, Any]) -> Dict[Any, Any]:
 def color_menu(colno: int, colname: str, entry: Dict[str, Any]) -> Tuple[int, int]:
 
     """color the menu"""
-    if entry["default"] is False:     #uncomment when column __default is added
+    if entry["default"] is "False":
         return 3, 0
     return 2, 0
+
+def content_heading(obj: Any, screen_w: int) -> Union[CursesLines, None]:
+    """create a heading for host showing
+
+    :param obj: The content going to be shown
+    :type obj: Any
+    :param screen_w: The current screen width
+    :type screen_w: int
+    :return: The heading
+    :rtype: Union[CursesLines, None]
+    """
+
+    heading = []
+    string = obj["name"].replace("_", " ")
+    if obj["default"] is "False":
+        string += f" (current: {obj['current_value']})  (default: {obj['default']})"
+        color = 3
+    else:
+        string += f" (current/default: {obj['current_value']})"
+        color = 2
+
+    string = string + (" " * (screen_w - len(string) + 1))
+
+    heading.append(
+        tuple(
+            [
+                CursesLinePart(
+                    column=0,
+                    string=string,
+                    color=color,
+                    decoration=curses.A_UNDERLINE,
+                )
+            ]
+        )
+    )
+    return tuple(heading)
+
 
 class HumanReadableEntry(SimpleNamespace):
     # pylint: disable=too-few-public-methods
@@ -128,7 +169,7 @@ class Action(App):
                     obj=self.steps.current.value,
                     index=self.steps.current.index,
                     # TODO build a heading for the content
-                    # content_heading=content_heading,
+                    content_heading=content_heading,
                     filter_content_keys=filter_content_keys,
                 )
 
@@ -150,20 +191,26 @@ class Action(App):
             new_entry.description = current_entry.short_description
             new_entry.source = current_entry.value.source
             new_entry.current_value = current_entry.value.current
-            # new_entry.default_value = current_entry.value.default
+            new_entry.default_value = current_entry.value.default
             
+            """Transform column data into more readable data"""
             for var in new_entry.__dict__:
                 if ("NOT_SET" in str(getattr(new_entry, var))):
                     setattr(new_entry, var, "not set")
                 elif ("DEFAULT" in str(getattr(new_entry, var))):
                     setattr(new_entry, var, "default")
-                
+            
+            """Check if setting is default, based on the value of new_entry.source"""
             if("not set" in str(new_entry.source)):
-                new_entry.default = True
+                new_entry.default = "True"
             elif("default" in str(new_entry.source)):
-                new_entry.default = True
+                new_entry.default = "True"
             else:
-                new_entry.default = False
+                new_entry.default = "False"
+
+            """Translate all booleans to string for formatting purposes"""
+            if not isinstance(new_entry.current_value, str):
+                new_entry.current_value = str(new_entry.current_value)
 
             # the CLI parameters
             if isinstance(current_entry.cli_parameters, CliParameters):
@@ -174,6 +221,6 @@ class Action(App):
                 )
             else:
                 new_entry.cli_parameters = {"short": "None", "long": "None"}
-            # TODO: add more content
+        
             settings.append(new_entry.__dict__)
         self._settings = settings
