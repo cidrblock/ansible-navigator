@@ -182,6 +182,7 @@ class Action(App):
         """Transform the current settings from an ApplicationConfiguration into a list of
         dictionaries.
         """
+        test_list=[]
         settings = []
         for current_entry in self.app.args.entries:
             new_entry = HumanReadableEntry()
@@ -214,8 +215,12 @@ class Action(App):
 
             # the CLI parameters
             if isinstance(current_entry.cli_parameters, CliParameters):
-                # TODO: fix --playbook short
-                new_entry.cli_parameters = {"short": current_entry.cli_parameters.short}
+                
+                if current_entry.cli_parameters.short:
+                    new_entry.cli_parameters = {"short": current_entry.cli_parameters.short}
+                else:
+                    new_entry.cli_parameters = {"short": "None"}
+
                 new_entry.cli_parameters["long"] = (
                     current_entry.cli_parameters.long_override or f"--{current_entry.name_dashed}"
                 )
