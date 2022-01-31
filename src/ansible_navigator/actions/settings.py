@@ -22,7 +22,6 @@ from ..ui_framework import CursesLines
 from ..ui_framework import Interaction
 from .._yaml import human_dump
 
-# use if needed
 def filter_content_keys(obj: Dict[Any, Any]) -> Dict[Any, Any]:
     """Filter out some keys when showing content."""
     return {k: v for k, v in obj.items() if not k.startswith("__")}
@@ -151,7 +150,6 @@ class Action(App):
         if isinstance(self.steps.current, Interaction):
             result = run_action(self.steps.current.name, self.app, self.steps.current)
         elif isinstance(self.steps.current, Step):
-            # TODO: remember why this is here
             if self.steps.current.show_func:
                 current_index = self.steps.current.index
                 self.steps.current.show_func()
@@ -161,14 +159,12 @@ class Action(App):
                 result = self._interaction.ui.show(
                     obj=self.steps.current.value,
                     columns=self.steps.current.columns,
-                    # TODO color the menu - green (default)/ yellow (changed)
                     color_menu_item=color_menu,
                 )
             elif self.steps.current.type == "content":
                 result = self._interaction.ui.show(
                     obj=self.steps.current.value,
                     index=self.steps.current.index,
-                    # TODO build a heading for the content
                     content_heading=content_heading,
                     filter_content_keys=filter_content_keys,
                 )
@@ -182,7 +178,6 @@ class Action(App):
         """Transform the current settings from an ApplicationConfiguration into a list of
         dictionaries.
         """
-        test_list=[]
         settings = []
         for current_entry in self.app.args.entries:
             new_entry = HumanReadableEntry()
@@ -201,7 +196,7 @@ class Action(App):
                 elif ("DEFAULT" in str(getattr(new_entry, var))):
                     setattr(new_entry, var, "default")
             
-            """Check if setting is default, based on the value of new_entry.source"""
+            # Check if setting is default, based on the value of new_entry.source
             if("not set" in str(new_entry.source)):
                 new_entry.default = "True"
             elif("default" in str(new_entry.source)):
@@ -209,11 +204,11 @@ class Action(App):
             else:
                 new_entry.default = "False"
 
-            """Translate all booleans to string for formatting purposes"""
+            # Translate all current_value variables to string for formatting purposes
             if not isinstance(new_entry.current_value, str):
                 new_entry.current_value = str(new_entry.current_value)
 
-            # the CLI parameters
+            """Check for the CLI parameters"""
             if isinstance(current_entry.cli_parameters, CliParameters):
                 
                 if current_entry.cli_parameters.short:
