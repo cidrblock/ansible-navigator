@@ -27,13 +27,13 @@ class Constants(Enum):
     """Mapping some constants to friendly text"""
 
     ALL = "All the things"
-    DEFAULT_CFG = "default configuration value"
-    ENVIRONMENT_VARIABLE = "environment variable"
+    DEFAULT_CFG = "Defaults"
+    ENVIRONMENT_VARIABLE = "Environment variable"
     NONE = "None of the things"
-    NOT_SET = "value has not been set"
-    PREVIOUS_CLI = "previous cli command"
+    NOT_SET = "Value has not been set"
+    PREVIOUS_CLI = "Previous cli command"
     SAME_SUBCOMMAND = (
-        "used to determine if an entry should be used when"
+        "Used to determine if an entry should be used when"
         " applying previous cli common entries, this indicates"
         " that it will only be used if the subcommand is the same"
     )
