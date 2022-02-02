@@ -38,9 +38,9 @@ class Constants(Enum):
         " that it will only be used if the subcommand is the same"
     )
     SEARCH_PATH = "Found using search path"
-    SENTINEL = "indicates a nonvalue"
-    USER_CFG = "user provided configuration file"
-    USER_CLI = "cli parameters"
+    SENTINEL = "Indicates a nonvalue"
+    USER_CFG = "User-provided configuration file"
+    USER_CLI = "Provided at command line"
 
 
 class SettingsEntryValue(SimpleNamespace):

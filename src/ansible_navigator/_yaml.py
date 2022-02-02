@@ -61,11 +61,15 @@ class HumanDumper(Dumper):
     """
 
     def ignore_aliases(self, _data: Any) -> bool:
+<<<<<<< HEAD
         """Disable the use of anchors and aliases in the given data.
 
         :param _data: The data used to make the determination
         :returns: True, indicating aliases and anchors should not be used
         """
+=======
+        # Return true to disable use of anchors and aliases
+>>>>>>> 212dc43 (Starting settings file path work and refining settings stdout)
         return True
 
     def represent_scalar(
