@@ -73,12 +73,19 @@ def content_heading(obj: Any, screen_w: int) -> Union[CursesLines, None]:
 class HumanReadableEntry(SimpleNamespace):
     # pylint: disable=too-few-public-methods
     """Data structure for a setting entry."""
-    name: str
-    description: str
+    choices: List
     cli_parameters: Dict[str, str]
+    current_settings_file: str
     current_value: Any
     default_value: Any
     default: Any
+<<<<<<< HEAD
+=======
+    description: str
+    env_var: str
+    name: str
+    settings_file_sample: Dict
+>>>>>>> 212dc43 (Starting settings file path work and refining settings stdout)
     source: str
 
 
@@ -121,6 +128,7 @@ class Action(App):
 
     def run_stdout(self) -> int:
         """Handle settings in mode stdout."""
+        self._logger.debug("settings requested in stdout mode")
         self._transform_current_settings()
         print(human_dump(self._settings))
         return 0
@@ -174,17 +182,35 @@ class Action(App):
         else:
             self.steps.append(result)
 
+    def _sample_generator(self, settings_path: str) -> Dict:
+        """Generate a settings file sample.
+
+        :param settings_path: The dot delimited settings file path for a settings entry
+        :returns: A sample of the settings file
+        """
+        if "." not in settings_path:
+            return {settings_path: "<------"}
+        key, remainder = settings_path.split(".", 1)
+        return {key: self._sample_generator(remainder)}
+
     def _transform_current_settings(self):
         """Transform the current settings from an ApplicationConfiguration into a list of
         dictionaries.
         """
         settings = []
+        # settings.append()
+        # default: {CWD}/ansible-navigator.{ext} or {HOME}/.ansible-navigator.{ext} where ext is yml, yaml or json
+        # description: The path to the settings file
+        # env_var: ANSIBLE_NAVIGATOR_CONFIG
+        # source: settings source
+
         for current_entry in self.app.args.entries:
             new_entry = HumanReadableEntry()
         
             """Build the column data"""
             new_entry.name = current_entry.name
             new_entry.description = current_entry.short_description
+<<<<<<< HEAD
             new_entry.source = current_entry.value.source
             new_entry.current_value = current_entry.value.current
             new_entry.default_value = current_entry.value.default
@@ -200,6 +226,15 @@ class Action(App):
             if("not set" in str(new_entry.source)):
                 new_entry.default = "True"
             elif("default" in str(new_entry.source)):
+=======
+            new_entry.source = current_entry.value.source.value
+            new_entry.env_var = current_entry.environment_variable(
+                self.app.args.application_name.upper()
+            )
+            new_entry.choices = current_entry.choices
+
+            if current_entry.value.source in (Constants.NOT_SET, Constants.DEFAULT_CFG):
+>>>>>>> 212dc43 (Starting settings file path work and refining settings stdout)
                 new_entry.default = "True"
             else:
                 new_entry.default = "False"
@@ -214,13 +249,28 @@ class Action(App):
                 if current_entry.cli_parameters.short:
                     new_entry.cli_parameters = {"short": current_entry.cli_parameters.short}
                 else:
+<<<<<<< HEAD
                     new_entry.cli_parameters = {"short": "None"}
+=======
+                    new_entry.cli_parameters = {"short": "No short CLI parameter"}
+>>>>>>> 212dc43 (Starting settings file path work and refining settings stdout)
 
                 new_entry.cli_parameters["long"] = (
                     current_entry.cli_parameters.long_override or f"--{current_entry.name_dashed}"
                 )
             else:
                 new_entry.cli_parameters = {"short": "None", "long": "None"}
+<<<<<<< HEAD
         
+=======
+
+            new_entry.settings_file_sample = self._sample_generator(
+                current_entry.settings_file_path(
+                    prefix=self.app.args.application_name.replace("-", "_")
+                )
+            )
+
+>>>>>>> 212dc43 (Starting settings file path work and refining settings stdout)
             settings.append(new_entry.__dict__)
+        # sort list based on name
         self._settings = settings
