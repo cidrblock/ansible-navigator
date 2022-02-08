@@ -29,7 +29,7 @@ class Constants(Enum):
     ALL = "All the things"
     DEFAULT_CFG = "Defaults"
     ENVIRONMENT_VARIABLE = "Environment variable"
-    NONE = "None of the things"
+    NONE = "None"
     NOT_SET = "Value has not been set"
     PREVIOUS_CLI = "Previous cli command"
     SAME_SUBCOMMAND = (
