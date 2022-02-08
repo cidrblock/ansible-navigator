@@ -1,4 +1,4 @@
-"""The ``settings`` subcommand action. """
+"""The ``settings`` subcommand action."""
 
 import curses
 
@@ -16,22 +16,31 @@ from . import run_action
 from ..app import App
 from ..app_public import AppPublic
 from ..configuration_subsystem.definitions import CliParameters
+from ..configuration_subsystem.definitions import Constants
 from ..steps import Step
 from ..ui_framework import CursesLinePart
 from ..ui_framework import CursesLines
 from ..ui_framework import Interaction
 from .._yaml import human_dump
 
+
 def filter_content_keys(obj: Dict[Any, Any]) -> Dict[Any, Any]:
-    """Filter out some keys when showing content."""
+    """Filter out some keys when showing content.
+
+    :param obj: The object to be filtered
+    :return: The object with keys filtered out
+    """
     return {k: v for k, v in obj.items() if not k.startswith("__")}
 
+
 def color_menu(colno: int, colname: str, entry: Dict[str, Any]) -> Tuple[int, int]:
+    # pylint: disable=unused-argument
 
     """color the menu"""
-    if entry["default"] is "False":
+    if entry["default"] == "False":
         return 3, 0
     return 2, 0
+
 
 def content_heading(obj: Any, screen_w: int) -> Union[CursesLines, None]:
     """create a heading for host showing
@@ -46,7 +55,7 @@ def content_heading(obj: Any, screen_w: int) -> Union[CursesLines, None]:
 
     heading = []
     string = obj["name"].replace("_", " ")
-    if obj["default"] is "False":
+    if obj["default"] == "False":
         string += f" (current: {obj['current_value']})  (default: {obj['default']})"
         color = 3
     else:
@@ -72,6 +81,7 @@ def content_heading(obj: Any, screen_w: int) -> Union[CursesLines, None]:
 
 class HumanReadableEntry(SimpleNamespace):
     # pylint: disable=too-few-public-methods
+    # pylint: disable=too-many-instance-attributes
     """Data structure for a setting entry."""
     choices: List
     cli_parameters: Dict[str, str]
@@ -88,8 +98,6 @@ class HumanReadableEntry(SimpleNamespace):
 
 @actions.register
 class Action(App):
-    # pylint: disable=too-few-public-methods
-
     """The action class for the settings subcommand."""
 
     KEGEX = r"^se(?:ttings)?$"
@@ -191,22 +199,35 @@ class Action(App):
         return {key: self._sample_generator(remainder)}
 
     def _transform_current_settings(self):
-        """Transform the current settings from an ApplicationConfiguration into a list of
-        dictionaries.
-        """
-        settings = []
-        # settings.append()
-        # default: {CWD}/ansible-navigator.{ext} or {HOME}/.ansible-navigator.{ext} where ext is yml, yaml or json
-        # description: The path to the settings file
-        # env_var: ANSIBLE_NAVIGATOR_CONFIG
-        # source: settings source
+        """Transform the current settings into a list of dictionaries."""
+        
+        new_entry = HumanReadableEntry()
+        new_entry.name = "current_settings_file"
 
+        current_settings_file = self.app.args.internals.settings_file_path or "None"
+        new_entry.current_settings_file = current_settings_file
+        new_entry.current_value = current_settings_file
+        new_entry.default_value = (
+            "{CWD}/ansible-navigator.{ext} or {HOME}/.ansible-navigator.{ext}" 
+            " where ext is yml, yaml or json"
+            )
+        new_entry.description = "The path to the current settings file"
+        new_entry.env_var = "ANSIBLE_NAVIGATOR_CONFIG"
+        new_entry.settings_file_sample = "Not applicable"
+        new_entry.source = self.app.args.internals.settings_source.value
+        if self.app.args.internals.settings_source is Constants.SEARCH_PATH:
+            new_entry.default = str(True)
+        elif self.app.args.internals.settings_source is Constants.NONE or self.app.args.internals.settings_source is Constants.ENVIRONMENT_VARIABLE:
+            new_entry.default = str(False)
+        settings = [vars(new_entry)]
+     
         for current_entry in self.app.args.entries:
             new_entry = HumanReadableEntry()
-        
-            """Build the column data"""
+
+            # Build the column data
             new_entry.name = current_entry.name
             new_entry.description = current_entry.short_description
+            new_entry.current_settings_file = current_settings_file
             new_entry.source = current_entry.value.source.value
             new_entry.env_var = current_entry.environment_variable(
                 self.app.args.application_name.upper()
@@ -218,13 +239,20 @@ class Action(App):
             else:
                 new_entry.default = "False"
 
-            # Translate all current_value variables to string for formatting purposes
-            if not isinstance(new_entry.current_value, str):
-                new_entry.current_value = str(new_entry.current_value)
+            if isinstance(current_entry.value.default, Constants):
+                new_entry.default_value = current_entry.value.default.value
+            else:
+                new_entry.default_value = str(current_entry.value.default)
 
-            """Check for the CLI parameters"""
+            if isinstance(current_entry.value.current, Constants):
+                new_entry.current_value = current_entry.value.current.value
+            else:
+                # Translate all current_value variables to string for formatting purposes
+                new_entry.current_value = str(current_entry.value.current)
+
+            # Check for the CLI parameters
             if isinstance(current_entry.cli_parameters, CliParameters):
-                
+
                 if current_entry.cli_parameters.short:
                     new_entry.cli_parameters = {"short": current_entry.cli_parameters.short}
                 else:
@@ -242,6 +270,6 @@ class Action(App):
                 )
             )
 
-            settings.append(new_entry.__dict__)
-        # sort list based on name
-        self._settings = settings
+            settings.append(vars(new_entry))
+        sorted_settings = sorted(settings, key=lambda d: d['name'])
+        self._settings = sorted_settings
