@@ -6,12 +6,13 @@ from typing import List
 from typing import NamedTuple
 
 from .definitions import ApplicationConfiguration
-from .definitions import Constants
 from .definitions import CliParameters
+from .definitions import Constants
 
 
 class HumanReadableEntry(NamedTuple):
     """Data structure for a setting entry."""
+
     choices: List
     cli_parameters: Dict[str, str]
     current_settings_file: str
@@ -46,7 +47,9 @@ def _settings_check(entry: Dict[str, Any]) -> Dict[str, Any]:
     return entry
 
 
-def transform_settings(settings: ApplicationConfiguration) -> List[Dict[str, Any]]:
+def transform_settings(
+    settings: ApplicationConfiguration,
+) -> List[Dict[str, Any]]:
     """Transform the current settings into a list of dictionaries."""
 
     entry = {}
@@ -117,7 +120,7 @@ def transform_settings(settings: ApplicationConfiguration) -> List[Dict[str, Any
             entry["cli_parameters"] = {"short": "None", "long": "None"}
 
         entry["settings_file_sample"] = _sample_generator(
-            current_entry.settings_file_path(prefix=settings.application_name.replace("-", "_"))
+            current_entry.settings_file_path(prefix=settings.application_name.replace("-", "_")),
         )
         settings_list.append(_settings_check(entry))
 
