@@ -13,6 +13,8 @@ from ..._interactions import SearchFor
 from ..._interactions import Step
 from ..._tmux_session import TmuxSession
 
+TEST_FIXTURE_DIR = os.path.join(FIXTURES_DIR, "integration/actions/settings")
+
 base_steps = (
     Step(user_input=":f app", comment="filter for app settings"),
     Step(user_input=":0", comment="app settings details"),
@@ -22,7 +24,7 @@ base_steps = (
         comment="clear filter, full list",
         look_fors=["ansible_runner_artifact_dir", "workdir"],
         mask=True,
-        ),
+    ),
     Step(user_input=":f exec", comment="filter using a different index"),
     Step(user_input=":3", comment="execution_environment_image details"),
     Step(user_input=":back", comment="return to filtered list"),
@@ -34,28 +36,32 @@ base_steps = (
     ),
 )
 
+
 class BaseClass:
     """Base class for interactive/stdout ``settings`` tests."""
-    
+
     UPDATE_FIXTURES = False
     PANE_HEIGHT = 25
     PANE_WIDTH = 300
-    
+
     @pytest.fixture(scope="module", name="tmux_session")
     def fixture_tmux_session(self, request):
         """tmux fixture for this module"""
         params = {
-            "setup_commands": ["export ANSIBLE_NAVIGATOR_ANSIBLE_RUNNER_TIMEOUT=42", "export PAGER=cat"],
+            "setup_commands": [
+                "export ANSIBLE_NAVIGATOR_ANSIBLE_RUNNER_TIMEOUT=42",
+                "export PAGER=cat",
+            ],
             "unique_test_id": request.node.nodeid,
             "pane_height": self.PANE_HEIGHT,
             "pane_width": self.PANE_WIDTH,
         }
         with TmuxSession(**params) as tmux_session:
             yield tmux_session
-    
+
     def test(self, request, tmux_session, step):
         # pylint: disable=too-many-locals
-        """Run the tests for ``config``, mode and ``ee`` set in child class."""
+        """Run the tests for ``settings``, mode and ``ee`` set in child class."""
 
         if step.search_within_response is SearchFor.HELP:
             search_within_response = ":help help"
@@ -72,6 +78,7 @@ class BaseClass:
             # mask out some settings that is subject to change each run, app changes if called from CLI
             maskables = [
                 "app",
+                "current_settings_file",
             ]
             # Determine if a menu is showing
             mask_column_name = "CURRENT VALUE"
@@ -115,4 +122,3 @@ class BaseClass:
             assert expected_output == received_output, "\n" + "\n".join(
                 difflib.unified_diff(expected_output, received_output, "expected", "received"),
             )
-    
