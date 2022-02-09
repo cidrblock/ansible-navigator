@@ -1,0 +1,37 @@
+{
+    "name": "test[2-:0-app settings details]",
+    "index": 2,
+    "comment": "app settings details",
+    "additional_information": {
+        "look_fors": [],
+        "look_nots": [],
+        "compared_fixture": true
+    },
+    "output": [
+        "app (current: settings)  (default: False)",
+        " 0│---                                                                                                                                                                                                                                                                                                     ▒",
+        " 1│choices:                                                                                                                                                                                                                                                                                                ▒",
+        " 2│- builder                                                                                                                                                                                                                                                                                               ▒",
+        " 3│- collections                                                                                                                                                                                                                                                                                           ▒",
+        " 4│- config                                                                                                                                                                                                                                                                                                ▒",
+        " 5│- doc                                                                                                                                                                                                                                                                                                   ▒",
+        " 6│- exec                                                                                                                                                                                                                                                                                                  ▒",
+        " 7│- images                                                                                                                                                                                                                                                                                                ▒",
+        " 8│- inventory                                                                                                                                                                                                                                                                                             ▒",
+        " 9│- replay                                                                                                                                                                                                                                                                                                ▒",
+        "10│- run                                                                                                                                                                                                                                                                                                   ▒",
+        "11│- settings                                                                                                                                                                                                                                                                                              ▒",
+        "12│- welcome                                                                                                                                                                                                                                                                                               ▒",
+        "13│cli_parameters:                                                                                                                                                                                                                                                                                         ▒",
+        "14│  long: None                                                                                                                                                                                                                                                                                            ▒",
+        "15│  short: None                                                                                                                                                                                                                                                                                           ▒",
+        "16│current_settings_file: None                                                                                                                                                                                                                                                                             ▒",
+        "17│current_value: settings                                                                                                                                                                                                                                                                                 ▒",
+        "18│default: 'False'                                                                                                                                                                                                                                                                                        ▒",
+        "19│default_value: welcome                                                                                                                                                                                                                                                                                  ▒",
+        "20│description: Subcommands",
+        "21│env_var: ANSIBLE_NAVIGATOR_APP",
+        "22│name: app",
+        "^f/PgUp page up                          ^b/PgDn page down                          ↑↓ scroll                          esc back                          - previous                          + next                          [0-9] goto                          :help help"
+    ]
+}
