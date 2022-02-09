@@ -13,6 +13,7 @@ from ..._interactions import SearchFor
 from ..._interactions import Step
 from ..._tmux_session import TmuxSession
 
+
 TEST_FIXTURE_DIR = os.path.join(FIXTURES_DIR, "integration/actions/settings")
 
 base_steps = (

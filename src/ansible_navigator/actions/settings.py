@@ -5,13 +5,10 @@ import curses
 from typing import Any
 from typing import Dict
 from typing import List
-from typing import Union
 from typing import Tuple
+from typing import Union
 
-
-from . import _actions as actions
-from . import run_action
-
+from .._yaml import human_dump
 from ..app import App
 from ..app_public import AppPublic
 from ..configuration_subsystem import transform_settings
@@ -19,7 +16,8 @@ from ..steps import Step
 from ..ui_framework import CursesLinePart
 from ..ui_framework import CursesLines
 from ..ui_framework import Interaction
-from .._yaml import human_dump
+from . import _actions as actions
+from . import run_action
 
 
 def filter_content_keys(obj: Dict[Any, Any]) -> Dict[Any, Any]:
@@ -70,9 +68,9 @@ def content_heading(obj: Any, screen_w: int) -> Union[CursesLines, None]:
                     string=string,
                     color=color,
                     decoration=curses.A_UNDERLINE,
-                )
-            ]
-        )
+                ),
+            ],
+        ),
     )
     return tuple(heading)
 
