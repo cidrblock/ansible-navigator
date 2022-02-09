@@ -22,7 +22,7 @@ base_steps = (
     Step(
         user_input=":f",
         comment="clear filter, full list",
-        look_fors=["ansible_runner_artifact_dir", "workdir"],
+        look_fors=["ansible_runner_artifact_dir", "help_playbook"],
         mask=True,
     ),
     Step(user_input=":f exec", comment="filter using a different index"),
@@ -31,7 +31,7 @@ base_steps = (
     Step(
         user_input=":f",
         comment="clear filter, full list",
-        look_fors=["ansible_runner_artifact_dir", "workdir"],
+        look_fors=["ansible_runner_artifact_dir", "help_playbook"],
         mask=True,
     ),
 )
