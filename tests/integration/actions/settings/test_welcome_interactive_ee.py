@@ -1,4 +1,4 @@
-"""Tests for ``settings`` from CLI, interactive, without an EE.
+"""Tests for ``settings`` from welcome, interactive, with an EE.
 """
 import pytest
 
@@ -10,14 +10,11 @@ from .base import BaseClass
 from .base import base_steps
 
 
-CLI = Command(subcommand="settings", execution_environment=False).join()
+CLI = Command(execution_environment=True).join()
 
 initial_steps = (
-    Step(
-        user_input=CLI,
-        comment="ansible-navigator settings command top window",
-        look_fors=["ansible_runner_artifact_dir", "help_playbook"],
-    ),
+    Step(user_input=CLI, comment="welcome screen"),
+    Step(user_input=":settings", comment="enter settings from welcome screen"),
 )
 
 steps = add_indices(initial_steps + base_steps)
@@ -25,6 +22,6 @@ steps = add_indices(initial_steps + base_steps)
 
 @pytest.mark.parametrize("step", steps, ids=step_id)
 class Test(BaseClass):
-    """Run the tests for ``settings`` from CLI, interactive, without an EE."""
+    """Run the tests for ``settings`` from welcome, interactive, with an EE."""
 
     UPDATE_FIXTURES = True

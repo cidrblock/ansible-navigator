@@ -113,15 +113,16 @@ def _standard_entry(
     :return: The settings file entry
     """
     if isinstance(current.cli_parameters, CliParameters):
+        cli_long = current.cli_parameters.long_override or f"--{current.name_dashed}"
+
         if current.cli_parameters.short:
             cli_short = current.cli_parameters.short
         else:
             cli_short = "No short CLI parameter"
 
-    if isinstance(current.cli_parameters, CliParameters):
-        cli_long = current.cli_parameters.long_override or f"--{current.name_dashed}"
     else:
-        cli_long = "None"
+        cli_long = "No long CLI parameter"
+        cli_short = "No short CLI parameter"
 
     if isinstance(current.value.current, C):
         current_value = current.value.current.value

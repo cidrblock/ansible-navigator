@@ -123,7 +123,7 @@ class Action(App):
             name="all_options",
             columns=["name", "default", "source", "current_value"],
             select_func=self._build_settings_content,
-            tipe="menu",
+            step_type="menu",
             value=self._settings,
         )
 
@@ -131,7 +131,7 @@ class Action(App):
         """Build the content for one settings entry."""
         return Step(
             name="setting_content",
-            tipe="content",
+            step_type="content",
             value=self._settings,
             index=self.steps.current.index,
         )
