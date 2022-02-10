@@ -10,12 +10,13 @@ from .base import BaseClass
 from .base import base_steps
 
 
-CLI = Command(subcommand="settings", execution_environment=False).join()
+CLI = Command(execution_environment=False).join()
 
 initial_steps = (
+    Step(user_input=CLI, comment="welcome screen"),
     Step(
-        user_input=CLI,
-        comment="ansible-navigator settings command top window",
+        user_input=":settings",
+        comment="enter settings from welcome screen",
         look_fors=["ansible_runner_artifact_dir", "help_playbook"],
     ),
 )

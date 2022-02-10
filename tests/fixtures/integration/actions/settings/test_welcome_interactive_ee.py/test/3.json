@@ -1,6 +1,6 @@
 {
-    "name": "test[2-:0-app settings details]",
-    "index": 2,
+    "name": "test[3-:0-app settings details]",
+    "index": 3,
     "comment": "app settings details",
     "additional_information": {
         "look_fors": [],
@@ -8,7 +8,7 @@
         "compared_fixture": true
     },
     "output": [
-        "app (current: settings)  (default: False)",
+        "app (current/default: welcome)",
         " 0│---                                                                                                                                                                                                                                                                                                     ▒",
         " 1│choices:                                                                                                                                                                                                                                                                                                ▒",
         " 2│- builder                                                                                                                                                                                                                                                                                               ▒",
@@ -26,8 +26,8 @@
         "14│  long: No long CLI parameter                                                                                                                                                                                                                                                                           ▒",
         "15│  short: No short CLI parameter                                                                                                                                                                                                                                                                         ▒",
         "16│current_settings_file: None                                                                                                                                                                                                                                                                             ▒",
-        "17│current_value: settings                                                                                                                                                                                                                                                                                 ▒",
-        "18│default: 'False'                                                                                                                                                                                                                                                                                        ▒",
+        "17│current_value: welcome                                                                                                                                                                                                                                                                                  ▒",
+        "18│default: 'True'                                                                                                                                                                                                                                                                                         ▒",
         "19│default_value: welcome                                                                                                                                                                                                                                                                                  ▒",
         "20│description: Subcommands",
         "21│env_var: ANSIBLE_NAVIGATOR_APP",
