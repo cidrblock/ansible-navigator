@@ -6,6 +6,12 @@ import re
 import shutil
 import sys
 
+from pathlib import Path
+from typing import List
+from typing import Optional
+
+import pytest
+
 from .. import defaults
 
 
@@ -18,6 +24,25 @@ def get_executable_path(name):
     if not exec_path:
         raise ValueError(f"{name} executable not found")
     return exec_path
+
+
+def retrieve_fixture_for_step(
+    request: pytest.FixtureRequest,
+    step_index: int,
+    test_name: Optional[str] = None,
+) -> List[str]:
+    """Retrieve a fixture based on the test request and step index.
+
+    :param request: The current test request
+    :param step_index: The index of the current step in a set of TUI interactions
+    :param test_name: A test name to add to the fixture path if needed
+    :returns: The specific test step fixture
+    """
+    dir_path, file_name = fixture_path_from_request(request, step_index, test_name)
+    fixture_path = Path(dir_path, file_name)
+    with open(file=fixture_path, encoding="utf-8") as fh:
+        expected_output = json.load(fh)["output"]
+    return expected_output
 
 
 def update_fixtures(
@@ -133,23 +158,29 @@ def copytree(src, dst, symlinks=False, ignore=None, dirs_exist_ok=False):
     for name in names:
         if name in ignored_names:
             continue
-        srcname = os.path.join(src, name)
-        dstname = os.path.join(dst, name)
+        source_path = os.path.join(src, name)
+        destination_path = os.path.join(dst, name)
         try:
-            if symlinks and os.path.islink(srcname):
-                linkto = os.readlink(srcname)
-                os.symlink(linkto, dstname)
-            elif os.path.isdir(srcname):
-                copytree(srcname, dstname, symlinks, ignore, dirs_exist_ok=dirs_exist_ok)
+            if symlinks and os.path.islink(source_path):
+                source_link = os.readlink(source_path)
+                os.symlink(source_link, destination_path)
+            elif os.path.isdir(source_path):
+                copytree(
+                    source_path,
+                    destination_path,
+                    symlinks,
+                    ignore,
+                    dirs_exist_ok=dirs_exist_ok,
+                )
             else:
                 # Will raise a SpecialFileError for unsupported file types
-                shutil.copy(srcname, dstname)
+                shutil.copy(source_path, destination_path)
         # catch the Error from the recursive ``copytree`` so that we can
         # continue with other files
         except Error as err:
             errors.extend(err.args[0])
         except EnvironmentError as why:
-            errors.append((srcname, dstname, str(why)))
+            errors.append((source_path, destination_path, str(why)))
     try:
         shutil.copystat(src, dst)
     except OSError as why:
