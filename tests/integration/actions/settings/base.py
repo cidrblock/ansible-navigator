@@ -76,7 +76,7 @@ class BaseClass:
             search_within_response=search_within_response,
         )
         if step.mask:
-            # mask out some settings that is subject to change each run, app changes if called from CLI
+            # mask out some settings that is subject to change each run
             maskables = [
                 "app",
                 "current_settings_file",
