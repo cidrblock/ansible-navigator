@@ -1,13 +1,16 @@
 """Utilities related to the configuration subsystem."""
 
+from types import SimpleNamespace
 from typing import Any
 from typing import Dict
 from typing import List
 from typing import NamedTuple
+from typing import Union
 
 from .definitions import ApplicationConfiguration
 from .definitions import CliParameters
-from .definitions import Constants
+from .definitions import Constants as C
+from .definitions import SettingsEntry
 
 
 class HumanReadableEntry(NamedTuple):
@@ -22,8 +25,35 @@ class HumanReadableEntry(NamedTuple):
     description: str
     env_var: str
     name: str
-    settings_file_sample: Dict
+    settings_file_sample: Union[str, Dict]
     source: str
+
+
+def transform_settings(
+    settings: ApplicationConfiguration,
+) -> List[Dict[str, Any]]:
+    """Transform the current settings into a list of dictionaries.
+
+    :param: The current settings
+    :returns: The settings represented as a list of dictionaries
+    """
+    settings_list = []
+
+    entry = _settings_file_entry(settings.internals)
+    settings_list.append(entry._asdict())
+
+    for current in settings.entries:
+        application_name = settings.application_name
+        settings_file_path = settings.internals.settings_file_path
+        entry = _standard_entry(
+            current=current,
+            application_name=application_name,
+            settings_file_path=settings_file_path,
+        )
+        settings_list.append(entry._asdict())
+
+    sorted_settings = sorted(settings_list, key=lambda d: d["name"])
+    return sorted_settings
 
 
 def _sample_generator(settings_path: str) -> Dict:
@@ -38,91 +68,89 @@ def _sample_generator(settings_path: str) -> Dict:
     return {key: _sample_generator(remainder)}
 
 
-def _settings_check(entry: Dict[str, Any]) -> Dict[str, Any]:
-    """Ensure all keys are present in the settings entry.
+def _settings_file_entry(internals: SimpleNamespace) -> HumanReadableEntry:
+    """Generate a dictionary containing the details for the settings file.
 
-    :param entry: Settings entry to test
+    :param internals: The internal storage for settings information
+    :returns: The settings file entry
     """
-    HumanReadableEntry(**entry)
-    return entry
+    source = internals.settings_source
+    if source is C.SEARCH_PATH:
+        default = str(True)
+    elif source is C.NONE or source is C.ENVIRONMENT_VARIABLE:
+        default = str(False)
 
-
-def transform_settings(
-    settings: ApplicationConfiguration,
-) -> List[Dict[str, Any]]:
-    """Transform the current settings into a list of dictionaries."""
-
-    entry = {}
-    entry["name"] = "current_settings_file"
-
-    current_settings_file = settings.internals.settings_file_path or "None"
-    entry["choices"] = []
-    entry["cli_parameters"] = {"short": "None", "long": "None"}
-    entry["current_settings_file"] = current_settings_file
-    entry["current_value"] = current_settings_file
-    entry["default_value"] = (
+    default_value = (
         "{CWD}/ansible-navigator.{ext} or {HOME}/.ansible-navigator.{ext}"
         " where ext is yml, yaml or json"
     )
-    entry["description"] = "The path to the current settings file"
-    entry["env_var"] = "ANSIBLE_NAVIGATOR_CONFIG"
-    entry["settings_file_sample"] = "Not applicable"
-    entry["source"] = settings.internals.settings_source.value
-    if settings.internals.settings_source is Constants.SEARCH_PATH:
-        entry["default"] = str(True)
-    elif (
-        settings.internals.settings_source is Constants.NONE
-        or settings.internals.settings_source is Constants.ENVIRONMENT_VARIABLE
-    ):
-        entry["default"] = str(False)
 
-    settings_list = [_settings_check(entry)]
+    return HumanReadableEntry(
+        choices=[],
+        cli_parameters={"short": "None", "long": "None"},
+        current_settings_file=internals.settings_file_path or "None",
+        current_value=internals.settings_file_path or "None",
+        default_value=default_value,
+        default=default,
+        description="The path to the current settings file",
+        name="current_settings_file",
+        env_var="ANSIBLE_NAVIGATOR_CONFIG",
+        settings_file_sample="Not applicable",
+        source=internals.settings_source.value,
+    )
 
-    for current_entry in settings.entries:
-        entry = {}
 
-        # Build the column data
-        entry["name"] = current_entry.name
-        entry["description"] = current_entry.short_description
-        entry["current_settings_file"] = current_settings_file
-        entry["source"] = current_entry.value.source.value
-        entry["env_var"] = current_entry.environment_variable(settings.application_name.upper())
-        entry["choices"] = current_entry.choices
+def _standard_entry(
+    current: SettingsEntry,
+    application_name: str,
+    settings_file_path: str,
+) -> HumanReadableEntry:
+    """Generate a dictionary containing the details for one settings entry.
 
-        if current_entry.value.source in (Constants.NOT_SET, Constants.DEFAULT_CFG):
-            entry["default"] = "True"
+    :param current: A settings entry
+    :param application_name: The applications name
+    :param settings_file_path: The current settings file path
+    :return: The settings file entry
+    """
+    if isinstance(current.cli_parameters, CliParameters):
+        if current.cli_parameters.short:
+            cli_short = current.cli_parameters.short
         else:
-            entry["default"] = "False"
+            cli_short = "No short CLI parameter"
 
-        if isinstance(current_entry.value.default, Constants):
-            entry["default_value"] = current_entry.value.default.value
-        else:
-            entry["default_value"] = str(current_entry.value.default)
+    if isinstance(current.cli_parameters, CliParameters):
+        cli_long = current.cli_parameters.long_override or f"--{current.name_dashed}"
+    else:
+        cli_long = "None"
 
-        if isinstance(current_entry.value.current, Constants):
-            entry["current_value"] = current_entry.value.current.value
-        else:
-            # Translate all current_value variables to string for formatting purposes
-            entry["current_value"] = str(current_entry.value.current)
+    if isinstance(current.value.current, C):
+        current_value = current.value.current.value
+    else:
+        current_value = str(current.value.current)
 
-        # Check for the CLI parameters
-        if isinstance(current_entry.cli_parameters, CliParameters):
+    default = str(current.value.source in (C.NOT_SET, C.DEFAULT_CFG))
 
-            if current_entry.cli_parameters.short:
-                entry["cli_parameters"] = {"short": current_entry.cli_parameters.short}
-            else:
-                entry["cli_parameters"] = {"short": "No short CLI parameter"}
+    if isinstance(current.value.default, C):
+        default_value = current.value.default.value
+    else:
+        default_value = str(current.value.default)
 
-            entry["cli_parameters"]["long"] = (
-                current_entry.cli_parameters.long_override or f"--{current_entry.name_dashed}"
-            )
-        else:
-            entry["cli_parameters"] = {"short": "None", "long": "None"}
+    env_var = current.environment_variable(application_name.upper())
 
-        entry["settings_file_sample"] = _sample_generator(
-            current_entry.settings_file_path(prefix=settings.application_name.replace("-", "_")),
-        )
-        settings_list.append(_settings_check(entry))
+    settings_file_sample = _sample_generator(
+        current.settings_file_path(prefix=application_name.replace("-", "_")),
+    )
 
-    sorted_settings = sorted(settings_list, key=lambda d: d["name"])
-    return sorted_settings
+    return HumanReadableEntry(
+        choices=current.choices,
+        cli_parameters={"short": cli_short, "long": cli_long},
+        current_settings_file=settings_file_path or "None",
+        current_value=current_value,
+        default=default,
+        default_value=default_value,
+        description=current.short_description,
+        env_var=env_var,
+        name=current.name,
+        settings_file_sample=settings_file_sample,
+        source=current.value.source.value,
+    )
