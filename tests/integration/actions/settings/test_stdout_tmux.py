@@ -70,6 +70,6 @@ def step_id(value):
 
 @pytest.mark.parametrize("step", steps, ids=step_id)
 class Test(BaseClass):
-    """Run the tests for ``config`` from CLI, mode stdout."""
+    """Run the tests for ``settings`` from CLI, mode stdout."""
 
     UPDATE_FIXTURES = True
