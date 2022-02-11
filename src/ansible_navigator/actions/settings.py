@@ -94,7 +94,7 @@ class Action(App):
         self._logger.debug("settings requested")
         self._prepare_to_run(app, interaction)
 
-        self._settings = transform_settings(self.app.args)
+        self._settings = transform_settings(self._args)
         self.steps.append(self._build_main_menu())
 
         while True:
@@ -113,7 +113,7 @@ class Action(App):
     def run_stdout(self) -> int:
         """Handle settings in mode stdout."""
         self._logger.debug("settings requested in stdout mode")
-        self._settings = transform_settings(self.app.args)
+        self._settings = transform_settings(self._args)
         print(human_dump(self._settings))
         return 0
 
