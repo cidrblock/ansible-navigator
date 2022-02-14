@@ -9,14 +9,14 @@ from .base import BaseClass
 
 
 class StdoutCommand(Command):
-    """stdout command"""
+    """Stdout command."""
 
     subcommand = "settings"
     preclear = True
 
 
 class ShellCommand(UiTestStep):
-    """a shell command"""
+    """A shell command."""
 
     search_within_response = SearchFor.PROMPT
 
@@ -45,8 +45,12 @@ stdout_tests = (
 steps = add_indices(stdout_tests)
 
 
-def step_id(value):
-    """return the test id from the test step object"""
+def step_id(value) -> str:
+    """Return the test id from the test step object.
+
+    :param value: If relevant, values for test id
+    :return: String with step_id information
+    """
     return f"{value.comment}  {value.user_input}"
 
 

@@ -31,15 +31,20 @@ def filter_content_keys(obj: Dict[Any, Any]) -> Dict[Any, Any]:
 
 def color_menu(colno: int, colname: str, entry: Dict[str, Any]) -> Tuple[int, int]:
     # pylint: disable=unused-argument
+    """Color the menu.
 
-    """color the menu"""
+    :param colno: Column number
+    :param colname: Column name
+    :param entry: Column value
+    :return: Tuple int used to color the menu
+    """
     if entry["default"] == "False":
         return 3, 0
     return 2, 0
 
 
 def content_heading(obj: Any, screen_w: int) -> Union[CursesLines, None]:
-    """create a heading for host showing
+    """Create a heading for host showing.
 
     :param obj: The content going to be shown
     :type obj: Any
@@ -48,7 +53,6 @@ def content_heading(obj: Any, screen_w: int) -> Union[CursesLines, None]:
     :return: The heading
     :rtype: Union[CursesLines, None]
     """
-
     heading = []
     string = obj["name"].replace("_", " ")
     if obj["default"] == "False":
@@ -82,6 +86,10 @@ class Action(App):
     KEGEX = r"^se(?:ttings)?$"
 
     def __init__(self, args):
+        """Initialize the ``:settings`` action.
+
+        :param args: The current settings for the application
+        """
         super().__init__(args=args, logger_name=__name__, name="settings")
         self._settings: List[Dict]
 
@@ -90,6 +98,8 @@ class Action(App):
 
         :param interaction: The interaction from the user
         :param app: The app instance
+        :return: The pending :class:`~ansible_navigator.ui_framework.ui.Interaction` or
+            :data:`None`
         """
         self._logger.debug("settings requested")
         self._prepare_to_run(app, interaction)
@@ -111,14 +121,20 @@ class Action(App):
         return None
 
     def run_stdout(self) -> int:
-        """Handle settings in mode stdout."""
+        """Handle settings in mode stdout.
+
+        :return: int 0
+        """
         self._logger.debug("settings requested in stdout mode")
         self._settings = transform_settings(self._args)
         print(human_dump(self._settings))
         return 0
 
     def _build_main_menu(self):
-        """Build the main menu of settings."""
+        """Build the main menu of settings.
+
+        :return: The settings menu definition
+        """
         return Step(
             name="all_options",
             columns=["name", "default", "source", "current_value"],
@@ -128,7 +144,10 @@ class Action(App):
         )
 
     def _build_settings_content(self):
-        """Build the content for one settings entry."""
+        """Build the content for one settings entry.
+
+        :return: The option's content
+        """
         return Step(
             name="setting_content",
             step_type="content",

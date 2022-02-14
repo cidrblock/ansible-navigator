@@ -1,12 +1,12 @@
-"""Base class for ``settings`` interactive/stdout tests.
-"""
+"""Base class for ``settings`` interactive/stdout tests."""
+
 import difflib
 import os
 
 import pytest
 
-from ..._common import retrieve_fixture_for_step
 from ....defaults import FIXTURES_DIR
+from ..._common import retrieve_fixture_for_step
 from ..._common import update_fixtures
 from ..._interactions import SearchFor
 from ..._interactions import UiTestStep
@@ -46,7 +46,11 @@ class BaseClass:
 
     @pytest.fixture(scope="module", name="tmux_session")
     def fixture_tmux_session(self, request):
-        """tmux fixture for this module"""
+        """Tmux fixture for this module.
+
+        :param request: Used for generating test id
+        :yield: tmux_session object
+        """
         params = {
             "setup_commands": [
                 "export ANSIBLE_NAVIGATOR_ANSIBLE_RUNNER_TIMEOUT=42",
@@ -61,8 +65,13 @@ class BaseClass:
 
     def test(self, request, tmux_session, step):
         # pylint: disable=too-many-locals
-        """Run the tests for ``settings``, mode and ``ee`` set in child class."""
+        """Run the tests for ``settings``, mode and ``ee`` set in child class.
 
+        :param request: Used for generating test id
+        :param tmux_session: tmux_session object
+        :param step: UiTestStep object
+        :raises ValueError: If HELP or PROMPT aren't found
+        """
         if step.search_within_response is SearchFor.HELP:
             search_within_response = ":help help"
         elif step.search_within_response is SearchFor.PROMPT:
