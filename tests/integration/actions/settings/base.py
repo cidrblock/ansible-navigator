@@ -1,38 +1,37 @@
 """Base class for ``settings`` interactive/stdout tests.
 """
 import difflib
-import json
 import os
 
 import pytest
 
+from ..._common import retrieve_fixture_for_step
 from ....defaults import FIXTURES_DIR
-from ..._common import fixture_path_from_request
 from ..._common import update_fixtures
 from ..._interactions import SearchFor
-from ..._interactions import Step
+from ..._interactions import UiTestStep
 from ..._tmux_session import TmuxSession
 
 
 TEST_FIXTURE_DIR = os.path.join(FIXTURES_DIR, "integration/actions/settings")
 
 base_steps = (
-    Step(user_input=":f app", comment="filter for app settings"),
-    Step(user_input=":0", comment="app settings details"),
-    Step(user_input=":back", comment="return to filtered settings list"),
-    Step(
+    UiTestStep(user_input=":f app", comment="filter for app settings"),
+    UiTestStep(user_input=":0", comment="app settings details"),
+    UiTestStep(user_input=":back", comment="return to filtered settings list"),
+    UiTestStep(
         user_input=":f",
         comment="clear filter, full list",
-        look_fors=["ansible_runner_artifact_dir", "help_playbook"],
+        present=["ansible_runner_artifact_dir", "help_playbook"],
         mask=True,
     ),
-    Step(user_input=":f exec", comment="filter using a different index"),
-    Step(user_input=":3", comment="execution_environment_image details"),
-    Step(user_input=":back", comment="return to filtered list"),
-    Step(
+    UiTestStep(user_input=":f exec", comment="filter using a different index"),
+    UiTestStep(user_input=":3", comment="execution_environment_image details"),
+    UiTestStep(user_input=":back", comment="return to filtered list"),
+    UiTestStep(
         user_input=":f",
         comment="clear filter, full list",
-        look_fors=["ansible_runner_artifact_dir", "help_playbook"],
+        present=["ansible_runner_artifact_dir", "help_playbook"],
         mask=True,
     ),
 )
@@ -102,23 +101,21 @@ class BaseClass:
                 received_output,
                 step.comment,
                 additional_information={
-                    "look_fors": step.look_fors,
-                    "look_nots": step.look_nots,
-                    "compared_fixture": not any((step.look_fors, step.look_nots)),
+                    "present": step.present,
+                    "absent": step.absent,
+                    "compared_fixture": not any((step.present, step.absent)),
                 },
             )
             page = " ".join(received_output)
 
-        if step.look_fors:
-            assert all(look_for in page for look_for in step.look_fors)
+        if step.present:
+            assert all(present in page for present in step.present)
 
-        if step.look_nots:
-            assert not any(look_not in page for look_not in step.look_nots)
+        if step.absent:
+            assert not any(absent in page for absent in step.absent)
 
-        if not any((step.look_fors, step.look_nots)):
-            dir_path, file_name = fixture_path_from_request(request, step.step_index)
-            with open(file=f"{dir_path}/{file_name}", encoding="utf-8") as infile:
-                expected_output = json.load(infile)["output"]
+        if not any((step.present, step.absent)):
+            expected_output = retrieve_fixture_for_step(request, step.step_index)
 
             assert expected_output == received_output, "\n" + "\n".join(
                 difflib.unified_diff(expected_output, received_output, "expected", "received"),
