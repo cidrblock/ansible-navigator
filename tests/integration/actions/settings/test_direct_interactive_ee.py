@@ -1,5 +1,5 @@
-"""Tests for ``settings`` from CLI, interactive, with an EE.
-"""
+"""Tests for ``settings`` from CLI, interactive, with an EE."""
+
 import pytest
 
 from ..._interactions import Command
