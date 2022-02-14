@@ -3,7 +3,7 @@ import pytest
 
 from ..._interactions import Command
 from ..._interactions import SearchFor
-from ..._interactions import Step
+from ..._interactions import UiTestStep
 from ..._interactions import add_indices
 from .base import BaseClass
 
@@ -15,7 +15,7 @@ class StdoutCommand(Command):
     preclear = True
 
 
-class ShellCommand(Step):
+class ShellCommand(UiTestStep):
     """a shell command"""
 
     search_within_response = SearchFor.PROMPT
@@ -29,7 +29,7 @@ stdout_tests = (
             mode="stdout",
             execution_environment=True,
         ).join(),
-        look_fors=["name: set_environment_variable"],
+        present=["name: set_environment_variable"],
     ),
     ShellCommand(
         comment="print settings to stdout with no ee",
@@ -38,25 +38,7 @@ stdout_tests = (
             mode="stdout",
             execution_environment=False,
         ).join(),
-        look_fors=["name: set_environment_variable"],
-    ),
-    ShellCommand(  # needs work
-        comment="print settings to stdout with no ee",
-        user_input=StdoutCommand(
-            cmdline="settings",
-            mode="interactive",
-            execution_environment=True,
-        ).join(),
-        look_fors=["name: set_environment_variable"],
-    ),
-    ShellCommand(  # needs work
-        comment="print settings to stdout with no ee",
-        user_input=StdoutCommand(
-            cmdline="settings",
-            mode="interactive",
-            execution_environment=False,
-        ).join(),
-        look_fors=["name: set_environment_variable"],
+        present=["name: set_environment_variable"],
     ),
 )
 

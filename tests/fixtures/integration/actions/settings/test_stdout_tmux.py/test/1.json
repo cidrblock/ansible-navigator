@@ -1,7 +1,7 @@
 {
-    "name": "test[print settings to stdout with ee  clear && ansible-navigator settings settings --ee True --ll debug --mode stdout]",
-    "index": 0,
-    "comment": "print settings to stdout with ee",
+    "name": "test[print settings to stdout with no ee  clear && ansible-navigator settings settings --ee False --ll debug --mode stdout]",
+    "index": 1,
+    "comment": "print settings to stdout with no ee",
     "additional_information": {
         "present": [
             "name: set_environment_variable"
