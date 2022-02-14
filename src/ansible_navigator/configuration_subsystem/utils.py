@@ -34,7 +34,7 @@ def transform_settings(
 ) -> List[Dict[str, Any]]:
     """Transform the current settings into a list of dictionaries.
 
-    :param: The current settings
+    :param settings: The current settings
     :returns: The settings represented as a list of dictionaries
     """
     settings_list = []
