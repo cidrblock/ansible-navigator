@@ -24,4 +24,4 @@ steps = add_indices(initial_steps + base_steps)
 class Test(BaseClass):
     """Run the tests for ``settings`` from welcome, interactive, with an EE."""
 
-    UPDATE_FIXTURES = True
+    UPDATE_FIXTURES = False
