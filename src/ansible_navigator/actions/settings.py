@@ -47,7 +47,6 @@ def content_heading(obj: Any, screen_w: int) -> CursesLines:
     """Create a heading for the setting entry showing.
 
     :param obj: The content going to be shown
-    :type obj: Any
     :param screen_w: The current screen width
     :return: The heading
     """
