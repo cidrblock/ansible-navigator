@@ -9,7 +9,8 @@ from typing import Tuple
 from typing import Union
 
 from .._yaml import human_dump
-from ..app import App
+from ..action_base import ActionBase
+from ..action_defs import RunStdoutReturn
 from ..app_public import AppPublic
 from ..configuration_subsystem import transform_settings
 from ..steps import Step
@@ -44,14 +45,12 @@ def color_menu(colno: int, colname: str, entry: Dict[str, Any]) -> Tuple[int, in
 
 
 def content_heading(obj: Any, screen_w: int) -> Union[CursesLines, None]:
-    """Create a heading for host showing.
+    """Create a heading for the setting entry showing.
 
     :param obj: The content going to be shown
     :type obj: Any
     :param screen_w: The current screen width
-    :type screen_w: int
     :return: The heading
-    :rtype: Union[CursesLines, None]
     """
     heading = []
     string = obj["name"].replace("_", " ")
@@ -80,7 +79,7 @@ def content_heading(obj: Any, screen_w: int) -> Union[CursesLines, None]:
 
 
 @actions.register
-class Action(App):
+class Action(ActionBase):
     """The action class for the settings subcommand."""
 
     KEGEX = r"^se(?:ttings)?$"
@@ -120,17 +119,22 @@ class Action(App):
         self._prepare_to_exit(interaction)
         return None
 
-    def run_stdout(self) -> int:
-        """Handle settings in mode stdout.
+    def run_stdout(self) -> RunStdoutReturn:
+        """Handle settings in mode stdout
 
-        :return: int 0
+        :return: RunStdoutReturn
         """
         self._logger.debug("settings requested in stdout mode")
         self._settings = transform_settings(self._args)
-        print(human_dump(self._settings))
-        return 0
+        info_dump = human_dump(self._settings)
+        if isinstance(str, info_dump):
+            print(info_dump)
+            return RunStdoutReturn(message="", return_code=0)
+        return RunStdoutReturn(
+            message="Settings could not be retrieved, please log an issue.", return_code=1
+        )
 
-    def _build_main_menu(self):
+    def _build_main_menu(self) -> None:
         """Build the main menu of settings.
 
         :return: The settings menu definition
@@ -143,7 +147,7 @@ class Action(App):
             value=self._settings,
         )
 
-    def _build_settings_content(self):
+    def _build_settings_content(self) -> None:
         """Build the content for one settings entry.
 
         :return: The option's content
