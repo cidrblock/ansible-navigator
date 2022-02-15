@@ -1,9 +1,6 @@
 """Utilities related to the configuration subsystem."""
 
-from types import Any
-from types import SimpleNamespacefrom
-from types import import
-from types import typing
+from types import SimpleNamespace
 from typing import Dict
 from typing import List
 from typing import NamedTuple
