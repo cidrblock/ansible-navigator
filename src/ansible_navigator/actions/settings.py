@@ -6,7 +6,6 @@ from typing import Any
 from typing import Dict
 from typing import List
 from typing import Tuple
-from typing import Union
 
 from .._yaml import human_dump
 from ..action_base import ActionBase
@@ -44,7 +43,7 @@ def color_menu(colno: int, colname: str, entry: Dict[str, Any]) -> Tuple[int, in
     return 2, 0
 
 
-def content_heading(obj: Any, screen_w: int) -> Union[CursesLines, None]:
+def content_heading(obj: Any, screen_w: int) -> CursesLines:
     """Create a heading for the setting entry showing.
 
     :param obj: The content going to be shown
@@ -92,7 +91,7 @@ class Action(ActionBase):
         super().__init__(args=args, logger_name=__name__, name="settings")
         self._settings: List[Dict]
 
-    def run(self, interaction: Interaction, app: AppPublic) -> Union[Interaction, None]:
+    def run(self, interaction: Interaction, app: AppPublic) -> None:
         """Handle the ``settings`` subcommand in mode ``interactive``.
 
         :param interaction: The interaction from the user
@@ -120,21 +119,22 @@ class Action(ActionBase):
         return None
 
     def run_stdout(self) -> RunStdoutReturn:
-        """Handle settings in mode stdout
+        """Handle settings in mode stdout.
 
         :return: RunStdoutReturn
         """
         self._logger.debug("settings requested in stdout mode")
         self._settings = transform_settings(self._args)
         info_dump = human_dump(self._settings)
-        if isinstance(str, info_dump):
+        if isinstance(info_dump, str):
             print(info_dump)
             return RunStdoutReturn(message="", return_code=0)
         return RunStdoutReturn(
-            message="Settings could not be retrieved, please log an issue.", return_code=1
+            message="Settings could not be retrieved, please log an issue.",
+            return_code=1,
         )
 
-    def _build_main_menu(self) -> None:
+    def _build_main_menu(self) -> Step:
         """Build the main menu of settings.
 
         :return: The settings menu definition
@@ -147,7 +147,7 @@ class Action(ActionBase):
             value=self._settings,
         )
 
-    def _build_settings_content(self) -> None:
+    def _build_settings_content(self) -> Step:
         """Build the content for one settings entry.
 
         :return: The option's content
