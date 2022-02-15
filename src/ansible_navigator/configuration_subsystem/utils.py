@@ -31,7 +31,7 @@ class HumanReadableEntry(NamedTuple):
 
 def transform_settings(
     settings: ApplicationConfiguration,
-) -> List[Dict[str, Any]]:
+) -> List[Dict[str, Union[bool, Dict, str, List]:
     """Transform the current settings into a list of dictionaries.
 
     :param settings: The current settings
