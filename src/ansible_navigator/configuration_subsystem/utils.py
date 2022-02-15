@@ -19,9 +19,9 @@ class HumanReadableEntry(NamedTuple):
     choices: List
     cli_parameters: Dict[str, str]
     current_settings_file: str
-    current_value: Any
-    default_value: Any
-    default: Any
+    current_value: Union[bool, Dict, str, List]
+    default_value: str
+    default: str
     description: str
     env_var: str
     name: str
@@ -56,7 +56,7 @@ def transform_settings(
     return sorted_settings
 
 
-def _sample_generator(settings_path: str) -> Dict:
+def _sample_generator(settings_path: str) -> Dict[str, Union[Dict, str]]:
     """Generate a settings file sample.
 
     :param settings_path: The dot delimited settings file path for a settings entry
