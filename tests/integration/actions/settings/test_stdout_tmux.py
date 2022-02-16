@@ -58,4 +58,4 @@ def step_id(value) -> str:
 class Test(BaseClass):
     """Run the tests for ``settings`` from CLI, mode stdout."""
 
-    UPDATE_FIXTURES = False
+    UPDATE_FIXTURES = True

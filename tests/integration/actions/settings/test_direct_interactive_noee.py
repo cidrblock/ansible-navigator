@@ -27,4 +27,4 @@ steps = add_indices(initial_steps + base_steps)
 class Test(BaseClass):
     """Run the tests for ``settings`` from CLI, interactive, without an EE."""
 
-    UPDATE_FIXTURES = False
+    UPDATE_FIXTURES = True
