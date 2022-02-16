@@ -22,9 +22,9 @@
         "    long: --workdir",
         "    short: --bwd",
         "  current_settings_file: None",
-        "  current_value: /home/user/ansible/ansible-navigator",
+        "  current_value: /home/user/code/ansible-navigator",
         "  default: 'True'",
-        "  default_value: /home/user/ansible/ansible-navigator",
+        "  default_value: /home/user/code/ansible-navigator",
         "  description: Specify the path that contains ansible-builder manifest files",
         "  env_var: ANSIBLE_NAVIGATOR_WORKDIR",
         "  name: workdir",
@@ -33,6 +33,6 @@
         "      ansible-builder:",
         "        workdir: <------",
         "  source: Defaults",
-        "(virtenvs) bash-5.1$"
+        "(venv) bash-5.1$"
     ]
 }

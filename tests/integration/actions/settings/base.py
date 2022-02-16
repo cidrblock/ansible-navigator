@@ -115,7 +115,7 @@ class BaseClass:
                     "compared_fixture": not any((step.present, step.absent)),
                 },
             )
-            page = " ".join(received_output)
+        page = " ".join(received_output)
 
         if step.present:
             assert all(present in page for present in step.present)

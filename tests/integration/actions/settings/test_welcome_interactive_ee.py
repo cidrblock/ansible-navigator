@@ -14,7 +14,11 @@ CLI = Command(execution_environment=True).join()
 
 initial_steps = (
     UiTestStep(user_input=CLI, comment="welcome screen"),
-    UiTestStep(user_input=":settings", comment="enter settings from welcome screen"),
+    UiTestStep(
+        user_input=":settings",
+        comment="enter settings from welcome screen",
+        present=["ansible_runner_artifact_dir", "help_playbook"],
+    ),
 )
 
 steps = add_indices(initial_steps + base_steps)
@@ -24,4 +28,4 @@ steps = add_indices(initial_steps + base_steps)
 class Test(BaseClass):
     """Run the tests for ``settings`` from welcome, interactive, with an EE."""
 
-    UPDATE_FIXTURES = False
+    UPDATE_FIXTURES = True

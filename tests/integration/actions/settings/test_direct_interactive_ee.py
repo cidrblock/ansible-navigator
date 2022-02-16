@@ -13,7 +13,11 @@ from .base import base_steps
 CLI = Command(subcommand="settings", execution_environment=True).join()
 
 initial_steps = (
-    UiTestStep(user_input=CLI, comment="ansible-navigator settings command top window"),
+    UiTestStep(
+        user_input=CLI,
+        comment="ansible-navigator settings command top window",
+        present=["ansible_runner_artifact_dir", "help_playbook"],
+    ),
 )
 
 steps = add_indices(initial_steps + base_steps)
@@ -23,4 +27,4 @@ steps = add_indices(initial_steps + base_steps)
 class Test(BaseClass):
     """Run the tests for ``settings`` from CLI, interactive, with an EE."""
 
-    UPDATE_FIXTURES = False
+    UPDATE_FIXTURES = True
