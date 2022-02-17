@@ -4,7 +4,7 @@
     "comment": "print settings to stdout with no ee",
     "additional_information": {
         "present": [
-            "name: set_environment_variable"
+            "workdir"
         ],
         "absent": [],
         "compared_fixture": false
@@ -16,17 +16,17 @@
         "      execution-environment:",
         "        environment-variables:",
         "          set: <------",
-        "  source: Value has not been set",
+        "  source: Not set",
         "- choices: []",
         "  cli_parameters:",
         "    long: --workdir",
         "    short: --bwd",
         "  current_settings_file: None",
         "  current_value: /home/user/code/ansible-navigator",
-        "  default: 'True'",
-        "  default_value: /home/user/code/ansible-navigator",
+        "  default: /home/user/code/ansible-navigator",
         "  description: Specify the path that contains ansible-builder manifest files",
         "  env_var: ANSIBLE_NAVIGATOR_WORKDIR",
+        "  is_default: true",
         "  name: workdir",
         "  settings_file_sample:",
         "    ansible-navigator:",
