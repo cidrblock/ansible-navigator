@@ -87,6 +87,7 @@ class BaseClass:
             # mask out some settings that is subject to change each run
             maskables = [
                 "app",
+                "collection_doc_cache_path",
                 "current_settings_file",
             ]
             # Determine if a menu is showing
@@ -98,6 +99,7 @@ class BaseClass:
                 for idx, line in enumerate(received_output):
                     if any(f"│{m}" in line for m in maskables):
                         received_output[idx] = received_output[idx][0:column_start] + mask
+
         # Determine if fixtures need to be updated
         fixtures_update_requested = (
             self.UPDATE_FIXTURES
