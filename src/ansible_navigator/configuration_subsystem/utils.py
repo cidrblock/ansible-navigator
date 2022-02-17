@@ -62,7 +62,7 @@ def transform_settings(
             application_name=application_name,
             settings_file_path=settings_file_path,
         )
-        # py36, py37 is dataclass._asdict returns OrderedDict
+        # py36, py37 dataclass._asdict returns OrderedDict
         if sys.version_info >= (3, 8):
             entry_as_dict = entry._asdict()
         else:
