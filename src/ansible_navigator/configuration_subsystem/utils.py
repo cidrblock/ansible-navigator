@@ -153,7 +153,7 @@ def _standard_entry(
     )
 
     return HumanReadableEntry(
-        choices=current.choices,
+        choices=list(current.choices),  # May be a tuple e.g. PLUGIN_TYPES
         cli_parameters={"short": cli_short, "long": cli_long},
         current_settings_file=settings_file_path or "None",
         current_value=current_value,
