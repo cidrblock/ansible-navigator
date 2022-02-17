@@ -9,11 +9,11 @@
     },
     "output": [
         "  NAME                                                                                                   DEFAULT                SOURCE                                                                  CURRENT VALUE",
-        "0│exec_command                                                                                           True                   Defaults                                                                /bin/bash",
-        "1│exec_shell                                                                                             True                   Defaults                                                                True",
-        "2│execution_environment                                                                                  False                  Provided at command line                                                True",
-        "3│execution_environment_image                                                                            True                   Defaults                                                                quay.io/ansible/creator-ee:v0.2.0",
-        "4│execution_environment_volume_mounts                                                                    True                   Value has not been set                                                  Value has not been set",
+        "0│exec_command                                                                                              True                Defaults                                                                /bin/bash",
+        "1│exec_shell                                                                                                True                Defaults                                                                True",
+        "2│execution_environment                                                                                    False                Provided at command line                                                True",
+        "3│execution_environment_image                                                                               True                Defaults                                                                quay.io/ansible/creator-ee:v0.2.0",
+        "4│execution_environment_volume_mounts                                                                       True                Not set                                                                 Not set",
         "^f/PgUp page up                                      ^b/PgDn page down                                      ↑↓ scroll                                      esc back                                      [0-9] goto                                      :help help"
     ]
 }

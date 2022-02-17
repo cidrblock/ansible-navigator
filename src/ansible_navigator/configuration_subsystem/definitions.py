@@ -30,7 +30,7 @@ class Constants(Enum):
     DEFAULT_CFG = "Defaults"
     ENVIRONMENT_VARIABLE = "Environment variable"
     NONE = "None"
-    NOT_SET = "Value has not been set"
+    NOT_SET = "Not set"
     PREVIOUS_CLI = "Previous cli command"
     SAME_SUBCOMMAND = (
         "Used to determine if an entry should be used when"

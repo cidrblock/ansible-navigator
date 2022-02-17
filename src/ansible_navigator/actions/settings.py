@@ -38,9 +38,9 @@ def color_menu(colno: int, colname: str, entry: Dict[str, Any]) -> Tuple[int, in
     :param entry: Column value
     :return: Tuple int used to color the menu
     """
-    if entry["default"] == "False":
-        return 3, 0
-    return 2, 0
+    if entry["is_default"]:
+        return 2, 0
+    return 3, 0
 
 
 def content_heading(obj: Any, screen_w: int) -> CursesLines:
@@ -52,12 +52,12 @@ def content_heading(obj: Any, screen_w: int) -> CursesLines:
     """
     heading = []
     string = obj["name"].replace("_", " ")
-    if obj["default"] == "False":
-        string += f" (current: {obj['current_value']})  (default: {obj['default']})"
-        color = 3
-    else:
+    if obj["is_default"]:
         string += f" (current/default: {obj['current_value']})"
         color = 2
+    else:
+        string += f" (current: {obj['current_value']})  (default: {obj['default']})"
+        color = 3
 
     string = string + (" " * (screen_w - len(string) + 1))
 
@@ -101,7 +101,7 @@ class Action(ActionBase):
         self._logger.debug("settings requested")
         self._prepare_to_run(app, interaction)
 
-        self._settings = transform_settings(self._args)
+        self._gather_settings()
         self.steps.append(self._build_main_menu())
 
         while True:
@@ -140,7 +140,7 @@ class Action(ActionBase):
         """
         return Step(
             name="all_options",
-            columns=["name", "default", "source", "current_value"],
+            columns=["name", "__default", "source", "__current_value"],
             select_func=self._build_settings_content,
             step_type="menu",
             value=self._settings,
@@ -157,6 +157,18 @@ class Action(ActionBase):
             value=self._settings,
             index=self.steps.current.index,
         )
+
+    def _gather_settings(self):
+        """Gather the settings from the configuration subsystem and prepare for presentation.
+
+        The __default value is used to make the menu heading consistent with the config menu,
+        where ``is_default`` will show in the details for each setting.
+        """
+        settings = transform_settings(self._args)
+        for setting in settings:
+            setting["__default"] = setting["is_default"]
+            setting["__current_value"] = str(setting["current_value"])
+        self._settings = settings
 
     def _take_step(self) -> None:
         """Take one step in the stack of steps."""
