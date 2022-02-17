@@ -25,11 +25,11 @@ def test_content_heading_true():
     curses.initscr()
     curses.start_color()
     line_length = 100
-    default = "default_value"
+    default_val = "default_value"
     obj = {
         "name": "test settings entry",
         "default": "True",
-        "current_value": default,
+        "current_value": default_val,
         "option": "test_option",
     }
     heading = content_heading(obj, line_length)
@@ -37,7 +37,7 @@ def test_content_heading_true():
     assert len(heading[0]) == 1
     assert isinstance(heading[0][0], CursesLinePart)
     assert len(heading[0][0].string) == line_length + 1
-    assert f"test option (current/default: {default})" in heading[0][0].string
+    assert f"test settings entry (current/default: {default_val})" in heading[0][0].string
     assert heading[0][0].color == curses.COLOR_GREEN
     assert heading[0][0].column == 0
 
@@ -47,12 +47,12 @@ def test_content_heading_false() -> None:
     curses.initscr()
     curses.start_color()
     line_length = 100
-    current = "current_value"
-    default = "default_value"
+    current_val = "current_value"
+    default_val = "default_value"
     obj = {
         "name": "test settings entry",
         "default": "False",
-        "current_value": current,
+        "current_value": current_val,
         "option": "test_option",
     }
     heading = content_heading(obj, line_length)
@@ -61,7 +61,10 @@ def test_content_heading_false() -> None:
     assert len(heading[0]) == 1
     assert isinstance(heading[0][0], CursesLinePart)
     assert len(heading[0][0].string) == line_length + 1
-    assert f"test option (current: {current})  (default: {default})" in heading[0][0].string
+    assert (
+        f"test settings entry (current: {current_val})  (default: {default_val})"
+        in heading[0][0].string
+    )
     assert heading[0][0].color == curses.COLOR_YELLOW
     assert heading[0][0].column == 0
 
