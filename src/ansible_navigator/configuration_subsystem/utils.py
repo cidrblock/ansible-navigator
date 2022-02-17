@@ -1,5 +1,7 @@
 """Utilities related to the configuration subsystem."""
 
+import sys
+
 from types import SimpleNamespace
 from typing import Dict
 from typing import List
@@ -60,7 +62,12 @@ def transform_settings(
             application_name=application_name,
             settings_file_path=settings_file_path,
         )
-        settings_list.append(entry._asdict())
+        # py36, py37 is dataclass._asdict returns OrderedDict
+        if sys.version_info >= (3, 8):
+            entry_as_dict = entry._asdict()
+        else:
+            entry_as_dict = dict(entry._asdict())
+        settings_list.append(entry_as_dict)
 
     sorted_settings = sorted(settings_list, key=lambda d: d["name"])
     return sorted_settings
