@@ -15,16 +15,27 @@ from .definitions import SettingsEntry
 class HumanReadableEntry(NamedTuple):
     """Data structure for a setting entry."""
 
+    #: The possible values
     choices: List
+    #: The CLI parameters, short and long
     cli_parameters: Dict[str, str]
+    #: The path to the current settings file
     current_settings_file: str
+    #: The current, effective value
     current_value: Union[bool, Dict, str, List]
-    default_value: str
-    default: str
+    #: The default value
+    default: Union[bool, str]
+    #: A short description
     description: str
+    #: The environment variable
     env_var: str
+    #: Indicate if the current == the default
+    is_default: bool
+    #: The name
     name: str
+    #: A sample settings file snippet
     settings_file_sample: Union[str, Dict]
+    #: The source of the current value
     source: str
 
 
@@ -75,11 +86,11 @@ def _settings_file_entry(internals: SimpleNamespace) -> HumanReadableEntry:
     """
     source = internals.settings_source
     if source is C.SEARCH_PATH:
-        default = str(True)
+        is_default = True
     elif source is C.NONE or source is C.ENVIRONMENT_VARIABLE:
-        default = str(False)
+        is_default = False
 
-    default_value = (
+    default = (
         "{CWD}/ansible-navigator.{ext} or {HOME}/.ansible-navigator.{ext}"
         " where ext is yml, yaml or json"
     )
@@ -89,8 +100,8 @@ def _settings_file_entry(internals: SimpleNamespace) -> HumanReadableEntry:
         cli_parameters={"short": "None", "long": "None"},
         current_settings_file=internals.settings_file_path or "None",
         current_value=internals.settings_file_path or "None",
-        default_value=default_value,
         default=default,
+        is_default=is_default,
         description="The path to the current settings file",
         name="current_settings_file",
         env_var="ANSIBLE_NAVIGATOR_CONFIG",
@@ -126,16 +137,16 @@ def _standard_entry(
     if isinstance(current.value.current, C):
         current_value = current.value.current.value
     else:
-        current_value = str(current.value.current)
-
-    default = str(current.value.source in (C.NOT_SET, C.DEFAULT_CFG))
+        current_value = current.value.current
 
     if isinstance(current.value.default, C):
-        default_value = current.value.default.value
+        default = current.value.default.value
     else:
-        default_value = str(current.value.default)
+        default = current.value.default
 
     env_var = current.environment_variable(application_name.upper())
+
+    is_default = current.value.source in (C.NOT_SET, C.DEFAULT_CFG)
 
     settings_file_sample = _sample_generator(
         current.settings_file_path(prefix=application_name.replace("-", "_")),
@@ -147,9 +158,9 @@ def _standard_entry(
         current_settings_file=settings_file_path or "None",
         current_value=current_value,
         default=default,
-        default_value=default_value,
         description=current.short_description,
         env_var=env_var,
+        is_default=is_default,
         name=current.name,
         settings_file_sample=settings_file_sample,
         source=current.value.source.value,
