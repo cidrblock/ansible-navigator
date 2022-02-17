@@ -22,8 +22,6 @@ def test_color_menu_false():
 
 def test_content_heading_true():
     """Test menu generation for a defaulted value."""
-    curses.initscr()
-    curses.start_color()
     line_length = 100
     default_value = "default_value"
     current_value = default_value
@@ -46,8 +44,6 @@ def test_content_heading_true():
 
 def test_content_heading_false() -> None:
     """Test menu generation for a value not default."""
-    curses.initscr()
-    curses.start_color()
     line_length = 100
     current_value = "current_value"
     default_value = "default_value"
