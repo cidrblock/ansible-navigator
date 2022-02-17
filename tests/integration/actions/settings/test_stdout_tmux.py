@@ -29,7 +29,7 @@ stdout_tests = (
             mode="stdout",
             execution_environment=True,
         ).join(),
-        present=["name: set_environment_variable"],
+        present=["workdir"],
     ),
     ShellCommand(
         comment="print settings to stdout with no ee",
@@ -38,7 +38,7 @@ stdout_tests = (
             mode="stdout",
             execution_environment=False,
         ).join(),
-        present=["name: set_environment_variable"],
+        present=["workdir"],
     ),
 )
 
