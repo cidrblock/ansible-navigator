@@ -10,13 +10,13 @@ from ansible_navigator.ui_framework.curses_defs import CursesLinePart
 
 def test_color_menu_true():
     """Test color menu for a val set to the default."""
-    entry = {"default": True}
+    entry = {"default": "True"}
     assert color_menu(0, "", entry) == (2, 0)
 
 
 def test_color_menu_false():
     """Test color menu for a val not set to default."""
-    entry = {"__default": False}
+    entry = {"default": "False"}
     assert color_menu(0, "", entry) == (3, 0)
 
 
@@ -27,6 +27,7 @@ def test_content_heading_true():
     line_length = 100
     default = "default_value"
     obj = {
+        "name": "test settings entry",
         "default": "True",
         "current_value": default,
         "option": "test_option",
@@ -49,6 +50,7 @@ def test_content_heading_false() -> None:
     current = "current_value"
     default = "default_value"
     obj = {
+        "name": "test settings entry",
         "default": "False",
         "current_value": current,
         "option": "test_option",
