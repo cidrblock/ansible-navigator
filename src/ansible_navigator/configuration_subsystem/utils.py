@@ -1,5 +1,7 @@
 """Utilities related to the configuration subsystem."""
 
+import sys
+
 from types import SimpleNamespace
 from typing import Dict
 from typing import List
@@ -60,7 +62,12 @@ def transform_settings(
             application_name=application_name,
             settings_file_path=settings_file_path,
         )
-        settings_list.append(entry._asdict())
+        # py36, py37 dataclass._asdict returns OrderedDict
+        if sys.version_info >= (3, 8):
+            entry_as_dict = entry._asdict()
+        else:
+            entry_as_dict = dict(entry._asdict())
+        settings_list.append(entry_as_dict)
 
     sorted_settings = sorted(settings_list, key=lambda d: d["name"])
     return sorted_settings
@@ -153,7 +160,7 @@ def _standard_entry(
     )
 
     return HumanReadableEntry(
-        choices=current.choices,
+        choices=list(current.choices),  # May be a tuple e.g. PLUGIN_TYPES
         cli_parameters={"short": cli_short, "long": cli_long},
         current_settings_file=settings_file_path or "None",
         current_value=current_value,
