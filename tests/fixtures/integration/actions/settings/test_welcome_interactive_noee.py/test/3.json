@@ -27,10 +27,10 @@
         "15│  short: No short CLI parameter                                                                                                                                                                                                                                                                         ▒",
         "16│current_settings_file: None                                                                                                                                                                                                                                                                             ▒",
         "17│current_value: welcome                                                                                                                                                                                                                                                                                  ▒",
-        "18│default: 'True'                                                                                                                                                                                                                                                                                         ▒",
-        "19│default_value: welcome                                                                                                                                                                                                                                                                                  ▒",
-        "20│description: Subcommands",
-        "21│env_var: ANSIBLE_NAVIGATOR_APP",
+        "18│default: welcome                                                                                                                                                                                                                                                                                        ▒",
+        "19│description: Subcommands                                                                                                                                                                                                                                                                                ▒",
+        "20│env_var: ANSIBLE_NAVIGATOR_APP",
+        "21│is_default: true",
         "22│name: app",
         "^f/PgUp page up                          ^b/PgDn page down                          ↑↓ scroll                          esc back                          - previous                          + next                          [0-9] goto                          :help help"
     ]
