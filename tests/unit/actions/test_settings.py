@@ -9,7 +9,9 @@ import pytest
 from ansible_navigator.actions.settings import color_menu
 from ansible_navigator.actions.settings import content_heading
 from ansible_navigator.actions.settings import filter_content_keys
-from ansible_navigator.ui_framework.curses_defs import CursesLinePart
+from ansible_navigator.ui_framework import Color
+from ansible_navigator.ui_framework import CursesLinePart
+from ansible_navigator.ui_framework import Decoration
 
 
 @dataclass
@@ -32,14 +34,14 @@ class ColorMenuTestEntry:
 ColorMenuTestEntries = (
     ColorMenuTestEntry(
         comment="default/green",
-        color=2,
-        decoration=0,
+        color=Color.GREEN,
+        decoration=Decoration.NORMAL,
         is_default=True,
     ),
     ColorMenuTestEntry(
         comment="not default/yellow",
-        color=3,
-        decoration=0,
+        color=Color.YELLOW,
+        decoration=Decoration.NORMAL,
         is_default=False,
     ),
 )
