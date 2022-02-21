@@ -1,4 +1,4 @@
-"""Base class for ``settings`` interactive/stdout tests."""
+"""Base configuration for ``settings`` interactive/stdout tests."""
 
 import difflib
 import os
@@ -49,7 +49,7 @@ class BaseClass:
         """Tmux fixture for this module.
 
         :param request: Used for generating test id
-        :yield: tmux_session object
+        :yields: tmux_session object
         """
         params = {
             "setup_commands": [

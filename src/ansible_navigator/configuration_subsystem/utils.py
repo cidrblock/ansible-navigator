@@ -73,7 +73,7 @@ def transform_settings(
     return sorted_settings
 
 
-def _sample_generator(settings_path: str) -> Dict[str, Union[Dict, str]]:
+def _create_settings_file_sample(settings_path: str) -> Dict[str, Union[Dict, str]]:
     """Generate a settings file sample.
 
     :param settings_path: The dot delimited settings file path for a settings entry
@@ -82,7 +82,7 @@ def _sample_generator(settings_path: str) -> Dict[str, Union[Dict, str]]:
     if "." not in settings_path:
         return {settings_path: "<------"}
     key, remainder = settings_path.split(".", 1)
-    return {key: _sample_generator(remainder)}
+    return {key: _create_settings_file_sample(remainder)}
 
 
 def _settings_file_entry(internals: SimpleNamespace) -> HumanReadableEntry:
@@ -155,7 +155,7 @@ def _standard_entry(
 
     is_default = current.value.source in (C.NOT_SET, C.DEFAULT_CFG)
 
-    settings_file_sample = _sample_generator(
+    settings_file_sample = _create_settings_file_sample(
         current.settings_file_path(prefix=application_name.replace("-", "_")),
     )
 
