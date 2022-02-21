@@ -1,8 +1,8 @@
 """Unit tests for the ``settings`` action."""
 
 import curses
-from dataclasses import dataclass
 
+from dataclasses import dataclass
 
 import pytest
 
