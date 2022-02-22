@@ -2,16 +2,15 @@
 
 from dataclasses import asdict
 from dataclasses import dataclass
+from typing import Optional
 
 import pytest
 
-from typing import Optional
-
+from ansible_navigator.actions.settings import CONTENT_HEADING_DEFAULT
+from ansible_navigator.actions.settings import CONTENT_HEADING_NOT_DEFAULT
 from ansible_navigator.actions.settings import color_menu
 from ansible_navigator.actions.settings import content_heading
 from ansible_navigator.actions.settings import filter_content_keys
-from ansible_navigator.actions.settings import CONTENT_HEADING_DEFAULT
-from ansible_navigator.actions.settings import CONTENT_HEADING_NOT_DEFAULT
 from ansible_navigator.ui_framework import Color
 from ansible_navigator.ui_framework import CursesLinePart
 from ansible_navigator.ui_framework import Decoration
