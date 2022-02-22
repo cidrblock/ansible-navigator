@@ -88,7 +88,7 @@ class SettingsEntryValue:
     def resolved(self):
         """Transform this entry to an entry without internal constants.
 
-        This would typically used when the attributes need to be presented to the user.
+        This would typically be used when the attributes need to be presented to the user.
         Constants are resolved to their value.
 
         :returns: An entry without internal constants for attributes
