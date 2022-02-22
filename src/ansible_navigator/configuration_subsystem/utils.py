@@ -1,79 +1,187 @@
 """Utilities related to the configuration subsystem."""
 
-import sys
-
+from dataclasses import asdict
+from dataclasses import dataclass
 from types import SimpleNamespace
+from typing import ClassVar
 from typing import Dict
 from typing import List
-from typing import NamedTuple
+from typing import Optional
+from typing import Type
+from typing import TypeVar
 from typing import Union
 
 from .definitions import ApplicationConfiguration
 from .definitions import CliParameters
 from .definitions import Constants as C
+from .definitions import HRSettingsEntryDicts
+from .definitions import HRSettingsEntryValue
 from .definitions import SettingsEntry
 
 
-class HumanReadableEntry(NamedTuple):
-    """Data structure for a setting entry."""
+TCli = TypeVar("TCli", bound="_HRCliParameters")
+TEnt = TypeVar("TEnt", bound="_HRSettingsEntry")
 
-    #: The possible values
+SettingsFileSample = Dict[str, Union[Dict, str]]
+
+
+@dataclass(frozen=True)
+class _HRCliParameters:
+    """Human readable (HR) data structure for the cli parameters for an entry."""
+
+    NO_LONG_MSG: ClassVar[str] = "No long CLI parameter"
+    NO_SHORT_MSG: ClassVar[str] = "No short CLI parameter"
+
+    long: str = NO_LONG_MSG
+    """The long cli parameter value"""
+    short: str = NO_SHORT_MSG
+    """The short cli parameter value"""
+
+    @classmethod
+    def from_cli_params(
+        cls: Type[TCli],
+        cli_parameters: Optional[CliParameters],
+        name_dashed: str,
+    ) -> TCli:
+        """Create an ``_HRCliParameters`` based on an entry's cli parameters.
+
+        :param cli_parameters: The entry's cli parameters
+        :param name_dashed: The dashed name of the parent settings entry
+        :returns: The instance of self based on an entry's cli parameters
+        """
+        if isinstance(cli_parameters, CliParameters):
+            short = cli_parameters.short or cls.NO_SHORT_MSG
+            long = cli_parameters.long(name_dashed)
+            return cls(long=long, short=short)
+        return cls()
+
+
+@dataclass(frozen=True)
+class _HRSettingsEntry:
+    # pylint: disable=too-many-instance-attributes
+    """Human readable (HR) data structure for a settings entry."""
+
     choices: List
-    #: The CLI parameters, short and long
-    cli_parameters: Dict[str, str]
-    #: The path to the current settings file
+    """The possible values"""
     current_settings_file: str
-    #: The current, effective value
-    current_value: Union[bool, Dict, str, List]
-    #: The default value
-    default: Union[bool, str]
-    #: A short description
+    """The path to the current settings file"""
+    current_value: HRSettingsEntryValue
+    """The current, effective value"""
+    default: HRSettingsEntryValue
+    """The default value"""
     description: str
-    #: The environment variable
+    """A short description"""
     env_var: str
-    #: Indicate if the current == the default
+    """The environment variable"""
     is_default: bool
-    #: The name
+    """Indicates if the current value == the default"""
     name: str
-    #: A sample settings file snippet
+    """The name"""
     settings_file_sample: Union[str, Dict]
-    #: The source of the current value
+    """A sample settings file snippet"""
     source: str
+    """The source of the current value"""
+
+    cli_parameters: _HRCliParameters = _HRCliParameters()
+    """The CLI parameters, long and short"""
+
+    @classmethod
+    def for_settings_file(cls: Type[TEnt], internals: SimpleNamespace) -> TEnt:
+        """Create an ``_HRSettingsEntry`` containing the details for the settings file.
+
+        :param internals: The internal storage for settings information
+        :returns: The settings file entry
+        """
+        source = internals.settings_source
+        if source is C.SEARCH_PATH:
+            is_default = True
+        elif source is C.NONE or source is C.ENVIRONMENT_VARIABLE:
+            is_default = False
+
+        default = (
+            "{CWD}/ansible-navigator.{ext} or {HOME}/.ansible-navigator.{ext}"
+            " where ext is yml, yaml or json"
+        )
+        return cls(
+            choices=[],
+            current_settings_file=internals.settings_file_path or "None",
+            current_value=internals.settings_file_path or "None",
+            default=default,
+            is_default=is_default,
+            description="The path to the current settings file",
+            name="current_settings_file",
+            env_var="ANSIBLE_NAVIGATOR_CONFIG",
+            settings_file_sample="Not applicable",
+            source=internals.settings_source.value,
+        )
+
+    @classmethod
+    def from_settings_entry(
+        cls: Type[TEnt],
+        application_name_dashed: str,
+        entry: SettingsEntry,
+        settings_file_path: str,
+    ) -> TEnt:
+        """Create an ``_HRSettingsEntry`` containing the details for one settings entry.
+
+        :param application_name_dashed: The application name, dashed
+        :param entry: A settings entry
+        :param settings_file_path: The path to the settings file
+        :return: The settings file entry
+        """
+        cli_parameters = _HRCliParameters.from_cli_params(
+            cli_parameters=entry.cli_parameters,
+            name_dashed=entry.name_dashed,
+        )
+
+        env_var = entry.environment_variable(application_name_dashed)
+        entry_value_resolved = entry.value.resolved
+
+        path = entry.settings_file_path(application_name_dashed)
+        settings_file_sample = _create_settings_file_sample(path)
+
+        result = cls(
+            choices=list(entry.choices),  # May be a tuple e.g. PLUGIN_TYPES
+            cli_parameters=cli_parameters,
+            current_settings_file=str(settings_file_path),
+            current_value=entry_value_resolved.current,
+            default=entry_value_resolved.default,
+            description=entry.short_description,
+            env_var=env_var,
+            is_default=entry_value_resolved.is_default,
+            name=entry.name,
+            settings_file_sample=settings_file_sample,
+            source=entry.value.source.value,
+        )
+        return result
 
 
-def transform_settings(
-    settings: ApplicationConfiguration,
-) -> List[Dict[str, Union[bool, Dict, str, List]]]:
+def transform_settings(settings: ApplicationConfiguration) -> HRSettingsEntryDicts:
     """Transform the current settings into a list of dictionaries.
 
     :param settings: The current settings
     :returns: The settings represented as a list of dictionaries
     """
-    settings_list = []
+    settings_list: List[_HRSettingsEntry] = []
 
-    entry = _settings_file_entry(settings.internals)
-    settings_list.append(entry._asdict())
+    settings_file_entry = _HRSettingsEntry.for_settings_file(internals=settings.internals)
+    settings_list.append(settings_file_entry)
 
-    for current in settings.entries:
-        application_name = settings.application_name
-        settings_file_path = settings.internals.settings_file_path
-        entry = _standard_entry(
-            current=current,
-            application_name=application_name,
+    settings_file_path = settings_file_entry.current_settings_file
+    for entry in settings.entries:
+        human_readable_entry = _HRSettingsEntry.from_settings_entry(
+            entry=entry,
+            application_name_dashed=settings.application_name_dashed,
             settings_file_path=settings_file_path,
         )
-        # py36, py37 dataclass._asdict returns OrderedDict
-        if sys.version_info >= (3, 8):
-            entry_as_dict = entry._asdict()
-        else:
-            entry_as_dict = dict(entry._asdict())
-        settings_list.append(entry_as_dict)
+        settings_list.append(human_readable_entry)
 
-    sorted_settings = sorted(settings_list, key=lambda d: d["name"])
-    return sorted_settings
+    sorted_settings = sorted(settings_list, key=lambda d: d.name)
+    result = [asdict(entry) for entry in sorted_settings]
+    return result
 
 
-def _create_settings_file_sample(settings_path: str) -> Dict[str, Union[Dict, str]]:
+def _create_settings_file_sample(settings_path: str) -> SettingsFileSample:
     """Generate a settings file sample.
 
     :param settings_path: The dot delimited settings file path for a settings entry
@@ -83,94 +191,3 @@ def _create_settings_file_sample(settings_path: str) -> Dict[str, Union[Dict, st
         return {settings_path: "<------"}
     key, remainder = settings_path.split(".", 1)
     return {key: _create_settings_file_sample(remainder)}
-
-
-def _settings_file_entry(internals: SimpleNamespace) -> HumanReadableEntry:
-    """Generate a dictionary containing the details for the settings file.
-
-    :param internals: The internal storage for settings information
-    :returns: The settings file entry
-    """
-    source = internals.settings_source
-    if source is C.SEARCH_PATH:
-        is_default = True
-    elif source is C.NONE or source is C.ENVIRONMENT_VARIABLE:
-        is_default = False
-
-    default = (
-        "{CWD}/ansible-navigator.{ext} or {HOME}/.ansible-navigator.{ext}"
-        " where ext is yml, yaml or json"
-    )
-
-    return HumanReadableEntry(
-        choices=[],
-        cli_parameters={"short": "None", "long": "None"},
-        current_settings_file=internals.settings_file_path or "None",
-        current_value=internals.settings_file_path or "None",
-        default=default,
-        is_default=is_default,
-        description="The path to the current settings file",
-        name="current_settings_file",
-        env_var="ANSIBLE_NAVIGATOR_CONFIG",
-        settings_file_sample="Not applicable",
-        source=internals.settings_source.value,
-    )
-
-
-def _standard_entry(
-    current: SettingsEntry,
-    application_name: str,
-    settings_file_path: str,
-) -> HumanReadableEntry:
-    """Generate a dictionary containing the details for one settings entry.
-
-    :param current: A settings entry
-    :param application_name: The applications name
-    :param settings_file_path: The current settings file path
-    :return: The settings file entry
-    """
-    if isinstance(current.cli_parameters, CliParameters):
-        cli_long = current.cli_parameters.long_override or f"--{current.name_dashed}"
-
-        if current.cli_parameters.short:
-            cli_short = current.cli_parameters.short
-        else:
-            cli_short = "No short CLI parameter"
-
-    else:
-        cli_long = "No long CLI parameter"
-        cli_short = "No short CLI parameter"
-
-    # if isinstance(current.value.current, C):
-    #     current_value = current.value.current.value
-    # else:
-    #     current_value = current.value.current
-
-    # if isinstance(current.value.default, C):
-    #     default = current.value.default.value
-    # else:
-    #     default = current.value.default
-
-    env_var = current.environment_variable(application_name.upper())
-
-    value_dict = current.value.basic_dict()
-
-    # is_default = current.value.source in (C.NOT_SET, C.DEFAULT_CFG)
-
-    settings_file_sample = _create_settings_file_sample(
-        current.settings_file_path(prefix=application_name.replace("-", "_")),
-    )
-
-    return HumanReadableEntry(
-        choices=list(current.choices),  # May be a tuple e.g. PLUGIN_TYPES
-        cli_parameters={"short": cli_short, "long": cli_long},
-        current_settings_file=settings_file_path or "None",
-        current_value=value_dict["current"],
-        default=value_dict["default"],
-        description=current.short_description,
-        env_var=env_var,
-        is_default=value_dict["default"],
-        name=current.name,
-        settings_file_sample=settings_file_sample,
-        source=current.value.source.value,
-    )
