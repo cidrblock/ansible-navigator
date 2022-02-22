@@ -43,6 +43,10 @@ def color_menu(colno: int, colname: str, entry: Dict[str, Any]) -> Tuple[int, in
     return Color.YELLOW, Color.BLACK
 
 
+CONTENT_HEADING_DEFAULT = "{name} (current/default: {current_value})"
+CONTENT_HEADING_NOT_DEFAULT = "{name} (current: {current_value})  (default: {default})"
+
+
 def content_heading(obj: Any, screen_w: int) -> CursesLines:
     """Create a heading for the setting entry showing.
 
@@ -50,22 +54,26 @@ def content_heading(obj: Any, screen_w: int) -> CursesLines:
     :param screen_w: The current screen width
     :returns: The heading
     """
-    heading = []
-    heading_text = obj["name"].replace("_", " ")
+    format_fields = {
+        "name": obj["name"].replace("_", " ").upper(),
+        "current_value": obj["current_value"],
+        "default": obj["default"],
+    }
     if obj["is_default"]:
-        heading_text += f" (current/default: {obj['current_value']})"
+        text = CONTENT_HEADING_DEFAULT.format(**format_fields)
         color = Color.GREEN
     else:
-        heading_text += f" (current: {obj['current_value']})  (default: {obj['default']})"
+        text = CONTENT_HEADING_NOT_DEFAULT.format(**format_fields)
         color = Color.YELLOW
 
-    heading_text = heading_text + (" " * (screen_w - len(heading_text) + 1))
+    fill_characters = screen_w - len(text) + 1
+    heading_line = f"{text}{' ' * fill_characters}"
 
     heading = (
         (
             CursesLinePart(
                 column=0,
-                string=heading_text,
+                string=heading_line,
                 color=color,
                 decoration=Decoration.UNDERLINE,
             ),
