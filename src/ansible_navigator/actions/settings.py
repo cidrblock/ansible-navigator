@@ -1,7 +1,5 @@
 """The ``settings`` subcommand action."""
 
-import curses
-
 from typing import Any
 from typing import Dict
 from typing import List
@@ -13,8 +11,10 @@ from ..action_defs import RunStdoutReturn
 from ..app_public import AppPublic
 from ..configuration_subsystem import transform_settings
 from ..steps import Step
+from ..ui_framework import Color
 from ..ui_framework import CursesLinePart
 from ..ui_framework import CursesLines
+from ..ui_framework import Decoration
 from ..ui_framework import Interaction
 from . import _actions as actions
 from . import run_action
@@ -24,7 +24,7 @@ def filter_content_keys(obj: Dict[Any, Any]) -> Dict[Any, Any]:
     """Filter out some keys when showing content.
 
     :param obj: The object to be filtered
-    :return: The object with keys filtered out
+    :returns: The object with keys filtered out
     """
     return {k: v for k, v in obj.items() if not k.startswith("__")}
 
@@ -36,11 +36,11 @@ def color_menu(colno: int, colname: str, entry: Dict[str, Any]) -> Tuple[int, in
     :param colno: Column number
     :param colname: Column name
     :param entry: Column value
-    :return: Tuple int used to color the menu
+    :returns: Constants that curses uses to color a line of text
     """
     if entry["is_default"]:
-        return 2, 0
-    return 3, 0
+        return Color.GREEN, Color.BLACK
+    return Color.YELLOW, Color.BLACK
 
 
 def content_heading(obj: Any, screen_w: int) -> CursesLines:
@@ -48,32 +48,31 @@ def content_heading(obj: Any, screen_w: int) -> CursesLines:
 
     :param obj: The content going to be shown
     :param screen_w: The current screen width
-    :return: The heading
+    :returns: The heading
     """
     heading = []
     string = obj["name"].replace("_", " ")
     if obj["is_default"]:
         string += f" (current/default: {obj['current_value']})"
-        color = 2
+        color = Color.GREEN
     else:
         string += f" (current: {obj['current_value']})  (default: {obj['default']})"
-        color = 3
+        color = Color.YELLOW
 
     string = string + (" " * (screen_w - len(string) + 1))
 
-    heading.append(
-        tuple(
-            [
-                CursesLinePart(
-                    column=0,
-                    string=string,
-                    color=color,
-                    decoration=curses.A_UNDERLINE,
-                ),
-            ],
+    heading = (
+        (
+            CursesLinePart(
+                column=0,
+                string=string,
+                color=color,
+                decoration=Decoration.UNDERLINE,
+            ),
         ),
     )
-    return tuple(heading)
+
+    return heading
 
 
 @actions.register
@@ -95,7 +94,7 @@ class Action(ActionBase):
 
         :param interaction: The interaction from the user
         :param app: The app instance
-        :return: The pending :class:`~ansible_navigator.ui_framework.ui.Interaction` or
+        :returns: The pending :class:`~ansible_navigator.ui_framework.ui.Interaction` or
             :data:`None`
         """
         self._logger.debug("settings requested")
@@ -120,7 +119,7 @@ class Action(ActionBase):
     def run_stdout(self) -> RunStdoutReturn:
         """Handle settings in mode stdout.
 
-        :return: RunStdoutReturn
+        :returns: RunStdoutReturn
         """
         self._logger.debug("settings requested in stdout mode")
         self._settings = transform_settings(self._args)
@@ -136,7 +135,7 @@ class Action(ActionBase):
     def _build_main_menu(self) -> Step:
         """Build the main menu of settings.
 
-        :return: The settings menu definition
+        :returns: The settings menu definition
         """
         return Step(
             name="all_options",
@@ -149,7 +148,7 @@ class Action(ActionBase):
     def _build_settings_content(self) -> Step:
         """Build the content for one settings entry.
 
-        :return: The option's content
+        :returns: The option's content
         """
         return Step(
             name="setting_content",
