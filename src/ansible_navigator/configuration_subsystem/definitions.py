@@ -72,7 +72,7 @@ class SettingsEntryValue:
         This would typically used when the attributes need to be presented to the user.
         The ``is_default`` property is also included for this reason.
 
-        :returns: A dictionary without internal constants.
+        :returns: A dictionary without internal constants of all attributes
         """
         if isinstance(self.current, Constants):
             current = self.current.value
