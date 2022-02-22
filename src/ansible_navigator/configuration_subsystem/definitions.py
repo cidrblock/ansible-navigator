@@ -21,6 +21,12 @@ if TYPE_CHECKING:
     from .navigator_post_processor import NavigatorPostProcessor
 
 
+# Some predefined types for SettingsEntries once converted to human readable (HR) structures
+HRSettingsEntryValue = Union[bool, Dict, str, List]
+HRSettingsEntryDict = Dict[str, HRSettingsEntryValue]
+HRSettingsEntryDicts = List[HRSettingsEntryDict]
+
+
 @dataclass
 class CliParameters:
     """An object to hold the CLI parameters."""
@@ -200,6 +206,11 @@ class ApplicationConfiguration:
     def application_name_dashed(self) -> str:
         """Generate a dashed version of the application name"""
         return self.application_name.replace("_", "-")
+
+    @property
+    def application_name_dashed(self) -> str:
+        """Generate a dashed version of the application name"""
+        return self.name.replace("_", "-")
 
     def _get_by_name(self, name, kind):
         try:
