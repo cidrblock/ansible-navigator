@@ -141,19 +141,21 @@ def _standard_entry(
         cli_long = "No long CLI parameter"
         cli_short = "No short CLI parameter"
 
-    if isinstance(current.value.current, C):
-        current_value = current.value.current.value
-    else:
-        current_value = current.value.current
+    # if isinstance(current.value.current, C):
+    #     current_value = current.value.current.value
+    # else:
+    #     current_value = current.value.current
 
-    if isinstance(current.value.default, C):
-        default = current.value.default.value
-    else:
-        default = current.value.default
+    # if isinstance(current.value.default, C):
+    #     default = current.value.default.value
+    # else:
+    #     default = current.value.default
 
     env_var = current.environment_variable(application_name.upper())
 
-    is_default = current.value.source in (C.NOT_SET, C.DEFAULT_CFG)
+    value_dict = current.value.basic_dict()
+
+    # is_default = current.value.source in (C.NOT_SET, C.DEFAULT_CFG)
 
     settings_file_sample = _sample_generator(
         current.settings_file_path(prefix=application_name.replace("-", "_")),
@@ -163,11 +165,11 @@ def _standard_entry(
         choices=list(current.choices),  # May be a tuple e.g. PLUGIN_TYPES
         cli_parameters={"short": cli_short, "long": cli_long},
         current_settings_file=settings_file_path or "None",
-        current_value=current_value,
-        default=default,
+        current_value=value_dict["current"],
+        default=value_dict["default"],
         description=current.short_description,
         env_var=env_var,
-        is_default=is_default,
+        is_default=value_dict["default"],
         name=current.name,
         settings_file_sample=settings_file_sample,
         source=current.value.source.value,
