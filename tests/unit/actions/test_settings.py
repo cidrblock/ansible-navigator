@@ -2,22 +2,59 @@
 
 import curses
 
+from dataclasses import dataclass
+
+import pytest
+
 from ansible_navigator.actions.settings import color_menu
 from ansible_navigator.actions.settings import content_heading
 from ansible_navigator.actions.settings import filter_content_keys
-from ansible_navigator.ui_framework.curses_defs import CursesLinePart
+from ansible_navigator.ui_framework import Color
+from ansible_navigator.ui_framework import CursesLinePart
+from ansible_navigator.ui_framework import Decoration
 
 
-def test_color_menu_true():
-    """Test color menu for a val set to the default."""
-    entry = {"is_default": True}
-    assert color_menu(0, "", entry) == (2, 0)
+@dataclass
+class ColorMenuTestEntry:
+    """A test for menu coloring."""
+
+    color: int
+    comment: str
+    decoration: int
+    is_default: bool
+
+    def __str__(self):
+        """Provide a string representation.
+
+        :returns: The string representation of self
+        """
+        return self.comment
 
 
-def test_color_menu_false():
-    """Test color menu for a val not set to default."""
-    entry = {"is_default": False}
-    assert color_menu(0, "", entry) == (3, 0)
+ColorMenuTestEntries = (
+    ColorMenuTestEntry(
+        comment="default/green",
+        color=Color.GREEN,
+        decoration=Decoration.NORMAL,
+        is_default=True,
+    ),
+    ColorMenuTestEntry(
+        comment="not default/yellow",
+        color=Color.YELLOW,
+        decoration=Decoration.NORMAL,
+        is_default=False,
+    ),
+)
+
+
+@pytest.mark.parametrize(argnames="data", argvalues=ColorMenuTestEntries, ids=str)
+def test_color_menu_true(data: ColorMenuTestEntry):
+    """Test color menu for a val set to the default.
+
+    :param data: A test entry
+    """
+    entry = {"is_default": data.is_default}
+    assert color_menu(0, "", entry) == (data.color, data.decoration)
 
 
 def test_content_heading_true():

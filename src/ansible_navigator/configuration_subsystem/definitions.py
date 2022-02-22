@@ -57,6 +57,36 @@ class SettingsEntryValue:
     #: Indicates where the current value came from
     source: Constants = Constants.NOT_SET
 
+    @property
+    def is_default(self):
+        """Determine if the current value is the default value.
+
+        :returns: Indication of if the current is the default
+        """
+        result = self.default == self.current
+        return result
+
+    def basic_dict(self):
+        """Transform this entry to a dictionary without internal constants.
+
+        This would typically used when the attributes need to be presented to the user.
+        The ``is_default`` property is also included for this reason.
+
+        :returns: A dictionary without internal constants of all attributes
+        """
+        if isinstance(self.current, Constants):
+            current = self.current.value
+        else:
+            current = self.current
+
+        if isinstance(self.default, Constants):
+            default = self.default.value
+        else:
+            default = self.default
+
+        result = {"current": current, "default": default, "is_default": self.is_default}
+        return result
+
 
 @dataclass
 class SettingsEntry:
