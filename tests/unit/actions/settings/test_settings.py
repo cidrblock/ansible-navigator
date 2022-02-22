@@ -145,32 +145,6 @@ def test_content_heading(data: ContentHeadingEntry):
     assert data.heading in first_line_part.string
 
 
-# def test_content_heading_false() -> None:
-#     """Test menu generation for a value not default."""
-#     line_length = 100
-#     current_value = "current_value"
-#     default_value = "default_value"
-#     obj = {
-#         "name": "test settings entry",
-#         "current_value": current_value,
-#         "default": default_value,
-#         "is_default": current_value == default_value,
-#         "option": "test_option",
-#     }
-#     heading = content_heading(obj, line_length)
-#     assert heading
-#     assert len(heading) == 1
-#     assert len(heading[0]) == 1
-#     assert isinstance(heading[0][0], CursesLinePart)
-#     assert len(heading[0][0].string) == line_length + 1
-#     assert (
-#         f"test settings entry (current: {current_value})  (default: {default_value})"
-#         in heading[0][0].string
-#     )
-#     assert heading[0][0].color == curses.COLOR_YELLOW
-#     assert heading[0][0].column == 0
-
-
 def test_filter_content_keys() -> None:
     """Test filtering keys."""
     obj = {"__key": "value", "key": "value"}
