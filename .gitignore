@@ -137,7 +137,3 @@ dmypy.json
 
 # IntelliJ
 .idea/
-
-# VScode
-
-.vscode/
