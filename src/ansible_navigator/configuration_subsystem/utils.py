@@ -85,6 +85,13 @@ class _HRSettingsEntry:
     cli_parameters: _HRCliParameters = _HRCliParameters()
     """The CLI parameters, long and short"""
 
+    def __lt__(self, other):
+        """Compare based on name, called by sort, sorted.
+
+        :param other: The entry to compare this to
+        """
+        return self.name < other.name
+
     @classmethod
     def for_settings_file(cls: Type[TEnt], internals: SimpleNamespace) -> TEnt:
         """Create an ``_HRSettingsEntry`` containing the details for the settings file.
@@ -171,8 +178,8 @@ def transform_settings(settings: ApplicationConfiguration) -> HRSettingsEntryDic
         )
         settings_list.append(human_readable_entry)
 
-    sorted_settings = sorted(settings_list, key=lambda d: d.name)
-    result = [asdict(entry) for entry in sorted_settings]
+    settings_list.sort()
+    result = [asdict(entry) for entry in settings_list]
     return result
 
 
