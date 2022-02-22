@@ -51,21 +51,21 @@ def content_heading(obj: Any, screen_w: int) -> CursesLines:
     :returns: The heading
     """
     heading = []
-    string = obj["name"].replace("_", " ")
+    heading_text = obj["name"].replace("_", " ")
     if obj["is_default"]:
-        string += f" (current/default: {obj['current_value']})"
+        heading_text += f" (current/default: {obj['current_value']})"
         color = Color.GREEN
     else:
-        string += f" (current: {obj['current_value']})  (default: {obj['default']})"
+        heading_text += f" (current: {obj['current_value']})  (default: {obj['default']})"
         color = Color.YELLOW
 
-    string = string + (" " * (screen_w - len(string) + 1))
+    heading_text = heading_text + (" " * (screen_w - len(heading_text) + 1))
 
     heading = (
         (
             CursesLinePart(
                 column=0,
-                string=string,
+                string=heading_text,
                 color=color,
                 decoration=Decoration.UNDERLINE,
             ),

@@ -92,23 +92,18 @@ class _HRSettingsEntry:
         :param internals: The internal storage for settings information
         :returns: The settings file entry
         """
-        source = internals.settings_source
-        if source is C.SEARCH_PATH:
-            is_default = True
-        elif source is C.NONE or source is C.ENVIRONMENT_VARIABLE:
-            is_default = False
-
-        default = (
-            "{CWD}/ansible-navigator.{ext} or {HOME}/.ansible-navigator.{ext}"
-            " where ext is yml, yaml or json"
+        description = (
+            "The path to the current settings file. Possible locations are"
+            " {CWD}/ansible-navigator.{ext} or {HOME}/.ansible-navigator.{ext}"
+            " where ext is yml, yaml or json."
         )
         return cls(
             choices=[],
-            current_settings_file=internals.settings_file_path or "None",
-            current_value=internals.settings_file_path or "None",
-            default=default,
-            is_default=is_default,
-            description="The path to the current settings file",
+            current_settings_file=internals.settings_file_path or C.NONE.value,
+            current_value=internals.settings_file_path or C.NONE.value,
+            default=C.NONE.value,
+            is_default=internals.settings_source is C.NONE,
+            description=description,
             name="current_settings_file",
             env_var="ANSIBLE_NAVIGATOR_CONFIG",
             settings_file_sample="Not applicable",
