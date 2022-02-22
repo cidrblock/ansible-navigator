@@ -194,7 +194,7 @@ class ApplicationConfiguration(SimpleNamespace):
     @property
     def application_name_dashed(self) -> str:
         """Generate a dashed version of the application name"""
-        return self.name.replace("_", "-")
+        return self.application_name.replace("_", "-")
 
     def _get_by_name(self, name, kind):
         try:
