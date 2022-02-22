@@ -1,17 +1,26 @@
 """configuration definitions
 """
+import copy
+
 from dataclasses import dataclass
 from dataclasses import field
 from enum import Enum
 from types import SimpleNamespace
 from typing import Any
 from typing import Callable
+from typing import Dict
 from typing import Iterable
 from typing import List
 from typing import Optional
 from typing import Union
 
 from ..utils import oxfordcomma
+
+
+# Some predefined types for SettingsEntries once converted to human readable (HR) structures
+HRSettingsEntryValue = Union[bool, Dict, str, List]
+HRSettingsEntryDict = Dict[str, HRSettingsEntryValue]
+HRSettingsEntryDicts = List[HRSettingsEntryDict]
 
 
 @dataclass
@@ -24,6 +33,15 @@ class CliParameters:
     positional: bool = False
     short: Optional[str] = None
     metavar: Optional[str] = None
+
+    def long(self, name_dashed: str) -> str:
+        """Provide a cli long parameter.
+
+        :param name_dashed: The dashed name of the parent settings entry
+        :returns: The long cli parameter
+        """
+        long = self.long_override or f"--{name_dashed}"
+        return long
 
 
 class Constants(Enum):
@@ -66,26 +84,24 @@ class SettingsEntryValue:
         result = self.default == self.current
         return result
 
-    def basic_dict(self):
-        """Transform this entry to a dictionary without internal constants.
+    @property
+    def resolved(self):
+        """Transform this entry to an entry without internal constants.
 
         This would typically used when the attributes need to be presented to the user.
-        The ``is_default`` property is also included for this reason.
+        Constants are resolved to their value.
 
-        :returns: A dictionary without internal constants of all attributes
+        :returns: An entry without internal constants for attributes
         """
+        new_entry = copy.deepcopy(self)
+
         if isinstance(self.current, Constants):
-            current = self.current.value
-        else:
-            current = self.current
+            new_entry.current = self.current.value
 
         if isinstance(self.default, Constants):
-            default = self.default.value
-        else:
-            default = self.default
+            new_entry.default = self.default.value
 
-        result = {"current": current, "default": default, "is_default": self.is_default}
-        return result
+        return new_entry
 
 
 @dataclass
@@ -174,6 +190,11 @@ class ApplicationConfiguration(SimpleNamespace):
     post_processor = Callable
     initial: Any = None
     original_command: List[str]
+
+    @property
+    def application_name_dashed(self) -> str:
+        """Generate a dashed version of the application name"""
+        return self.name.replace("_", "-")
 
     def _get_by_name(self, name, kind):
         try:
