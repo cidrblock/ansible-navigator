@@ -1,1 +1,1 @@
-"""Init for settings tests."""
+"""Settings tests."""
