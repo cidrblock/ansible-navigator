@@ -28,7 +28,7 @@ from . import _actions as actions
 from . import run_action
 
 
-if sys.version_info >= (3, 7):
+if sys.version_info >= (3, 8):
     from typing import TypedDict
 else:
     from typing_extensions import TypedDict
