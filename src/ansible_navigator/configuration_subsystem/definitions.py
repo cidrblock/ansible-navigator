@@ -4,8 +4,8 @@ from dataclasses import dataclass
 from dataclasses import field
 from enum import Enum
 from types import SimpleNamespace
+from typing import TYPE_CHECKING
 from typing import Any
-from typing import Dict
 from typing import Iterable
 from typing import List
 from typing import Optional
@@ -175,16 +175,21 @@ class SubCommand(SimpleNamespace):
     epilog: Union[None, str] = None
 
 
-class ApplicationConfiguration(SimpleNamespace):
+@dataclass
+class ApplicationConfiguration:
+    # pylint: disable=too-many-instance-attributes
     """The main object for storing an application config"""
 
-    application_name: str = ""
-    entries: List[SettingsEntry] = []
+    application_version: Union[Constants, str]
+    entries: List[SettingsEntry]
     internals: SimpleNamespace
+    post_processor: "NavigatorPostProcessor"
     subcommands: List[SubCommand]
-    post_processor = Callable
+
+    application_name: str = ""
+    original_command: List[str] = field(default_factory=list)
+
     initial: Any = None
-    original_command: List[str]
 
     @property
     def application_name_dashed(self) -> str:
@@ -201,7 +206,7 @@ class ApplicationConfiguration(SimpleNamespace):
         """Returns a matching entry or the default from super"""
         try:
             return super().__getattribute__("_get_by_name")(attr, "entries").value.current
-        except KeyError:
+        except (AttributeError, KeyError):
             return super().__getattribute__(attr)
 
     def entry(self, name) -> SettingsEntry:
