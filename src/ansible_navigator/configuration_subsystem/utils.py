@@ -1,6 +1,5 @@
 """Utilities related to the configuration subsystem."""
 
-from dataclasses import asdict
 from dataclasses import dataclass
 from types import SimpleNamespace
 from typing import ClassVar
@@ -14,19 +13,18 @@ from typing import Union
 from .definitions import ApplicationConfiguration
 from .definitions import CliParameters
 from .definitions import Constants as C
-from .definitions import HRSettingsEntryDicts
 from .definitions import HRSettingsEntryValue
 from .definitions import SettingsEntry
 
 
-TCli = TypeVar("TCli", bound="_HRCliParameters")
-TEnt = TypeVar("TEnt", bound="_HRSettingsEntry")
+TCli = TypeVar("TCli", bound="HRCliParameters")
+TEnt = TypeVar("TEnt", bound="HRSettingsEntry")
 
 SettingsFileSample = Dict[str, Union[Dict, str]]
 
 
 @dataclass(frozen=True)
-class _HRCliParameters:
+class HRCliParameters:
     """Human readable (HR) data structure for the cli parameters for an entry."""
 
     NO_LONG_MSG: ClassVar[str] = "No long CLI parameter"
@@ -57,7 +55,7 @@ class _HRCliParameters:
 
 
 @dataclass(frozen=True)
-class _HRSettingsEntry:
+class HRSettingsEntry:
     # pylint: disable=too-many-instance-attributes
     """Human readable (HR) data structure for a settings entry."""
 
@@ -81,14 +79,14 @@ class _HRSettingsEntry:
     """A sample settings file snippet"""
     source: str
     """The source of the current value"""
-
-    cli_parameters: _HRCliParameters = _HRCliParameters()
+    cli_parameters: HRCliParameters = HRCliParameters()
     """The CLI parameters, long and short"""
 
     def __lt__(self, other):
         """Compare based on name, called by sort, sorted.
 
         :param other: The entry to compare this to
+        :returns: Indication of less than the other
         """
         return self.name < other.name
 
@@ -131,7 +129,7 @@ class _HRSettingsEntry:
         :param settings_file_path: The path to the settings file
         :return: The settings file entry
         """
-        cli_parameters = _HRCliParameters.from_cli_params(
+        cli_parameters = HRCliParameters.from_cli_params(
             cli_parameters=entry.cli_parameters,
             name_dashed=entry.name_dashed,
         )
@@ -158,20 +156,23 @@ class _HRSettingsEntry:
         return result
 
 
-def transform_settings(settings: ApplicationConfiguration) -> HRSettingsEntryDicts:
+HRSettingsEntries = List[HRSettingsEntry]
+
+
+def transform_settings(settings: ApplicationConfiguration) -> HRSettingsEntries:
     """Transform the current settings into a list of dictionaries.
 
     :param settings: The current settings
     :returns: The settings represented as a list of dictionaries
     """
-    settings_list: List[_HRSettingsEntry] = []
+    settings_list = []
 
-    settings_file_entry = _HRSettingsEntry.for_settings_file(internals=settings.internals)
+    settings_file_entry = HRSettingsEntry.for_settings_file(internals=settings.internals)
     settings_list.append(settings_file_entry)
 
     settings_file_path = settings_file_entry.current_settings_file
     for entry in settings.entries:
-        human_readable_entry = _HRSettingsEntry.from_settings_entry(
+        human_readable_entry = HRSettingsEntry.from_settings_entry(
             entry=entry,
             application_name_dashed=settings.application_name_dashed,
             settings_file_path=settings_file_path,
@@ -179,8 +180,7 @@ def transform_settings(settings: ApplicationConfiguration) -> HRSettingsEntryDic
         settings_list.append(human_readable_entry)
 
     settings_list.sort()
-    result = [asdict(entry) for entry in settings_list]
-    return result
+    return settings_list
 
 
 def _create_settings_file_sample(settings_path: str) -> SettingsFileSample:

@@ -319,6 +319,11 @@ class TmuxSession:
                     fh.writelines("\n".join(showing))
                 self._fail_remaining = ["******** PREVIOUS TEST FAILURE ********"]
                 return showing
+            
+        # Clear the screen in case subsequent tests produce the same output
+        # This ensures the pre_send capture will be different.
+        if mode == "shell":
+            self._pane.send_keys("clear")
 
         return showing
 
