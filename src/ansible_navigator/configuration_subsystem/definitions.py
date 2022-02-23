@@ -21,10 +21,8 @@ if TYPE_CHECKING:
     from .navigator_post_processor import NavigatorPostProcessor
 
 
-# Some predefined types for SettingsEntries once converted to human readable (HR) structures
-HRSettingsEntryValue = Union[bool, Dict, str, List]
-HRSettingsEntryDict = Dict[str, HRSettingsEntryValue]
-HRSettingsEntryDicts = List[HRSettingsEntryDict]
+if TYPE_CHECKING:
+    from .navigator_post_processor import NavigatorPostProcessor
 
 
 @dataclass
