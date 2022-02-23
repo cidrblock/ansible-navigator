@@ -8,7 +8,7 @@
         "compared_fixture": true
     },
     "output": [
-        "app (current/default: welcome)",
+        "APP (current/default: welcome)",
         " 0│---                                                                                                                                                                                                                                                                                                     ▒",
         " 1│choices:                                                                                                                                                                                                                                                                                                ▒",
         " 2│- builder                                                                                                                                                                                                                                                                                               ▒",

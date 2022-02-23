@@ -8,6 +8,7 @@ from typing import Callable
 from typing import Dict
 from typing import Generic
 from typing import List
+from typing import Mapping
 from typing import Optional
 from typing import Tuple
 from typing import TypeVar

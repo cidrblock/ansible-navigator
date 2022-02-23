@@ -8,7 +8,7 @@
         "compared_fixture": true
     },
     "output": [
-        "execution environment image (current/default: quay.io/ansible/creator-ee:v0.2.0)",
+        "EXECUTION ENVIRONMENT IMAGE (current/default: quay.io/ansible/creator-ee:v0.2.0)",
         " 0│---",
         " 1│choices: []",
         " 2│cli_parameters:",

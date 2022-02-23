@@ -1,13 +1,12 @@
 """Unit tests for the ``settings`` action."""
 
-from dataclasses import asdict
 from dataclasses import dataclass
-from typing import Optional
 
 import pytest
 
 from ansible_navigator.actions.settings import CONTENT_HEADING_DEFAULT
 from ansible_navigator.actions.settings import CONTENT_HEADING_NOT_DEFAULT
+from ansible_navigator.actions.settings import PresentableEntry
 from ansible_navigator.actions.settings import color_menu
 from ansible_navigator.actions.settings import content_heading
 from ansible_navigator.actions.settings import filter_content_keys
@@ -59,7 +58,7 @@ def test_color_menu(data: ColorMenuTestEntry):
 
     :param data: A test entry
     """
-    entry = {"is_default": data.is_default}
+    entry = PresentableEntry(is_default=data.is_default)
     assert color_menu(0, "", entry) == (data.color, data.decoration)
 
 
@@ -71,18 +70,12 @@ class ContentHeadingEntry:
     """The color for menu entry"""
     comment: str
     """Describes the test"""
-    current_value: str
-    """The current value"""
-    default: str
-    """The default value"""
-    is_default: Optional[bool] = None
-    """Indicate if the current is equal to the default."""
-    name: str = "test settings entry"
-    """The name of the settings entry"""
+    content: PresentableEntry
+    """The content"""
 
     def __post_init__(self):
         """Set is_default after initialization."""
-        self.is_default = self.current_value == self.default
+        self.content["is_default"] = self.content["current_value"] == self.content["default"]
 
     @property
     def heading(self):
@@ -90,11 +83,11 @@ class ContentHeadingEntry:
 
         :returns: The expected heading
         """
-        if self.is_default:
+        if self.content["is_default"]:
             heading = CONTENT_HEADING_DEFAULT
         else:
             heading = CONTENT_HEADING_NOT_DEFAULT
-        return heading.format(**asdict(self))
+        return heading.format(**self.content)
 
     def __str__(self):
         """Provide a string representation.
@@ -108,14 +101,20 @@ ContentHeadingEntries = (
     ContentHeadingEntry(
         color=Color.GREEN,
         comment="same",
-        current_value="navigator",
-        default="navigator",
+        content=PresentableEntry(
+            current_value="navigator",
+            default="navigator",
+            name="TEST",
+        ),
     ),
     ContentHeadingEntry(
         color=Color.YELLOW,
         comment="different",
-        current_value="ansible",
-        default="navigator",
+        content=PresentableEntry(
+            current_value="ansible",
+            default="navigator",
+            name="TEST",
+        ),
     ),
 )
 
@@ -127,7 +126,7 @@ def test_content_heading(data: ContentHeadingEntry):
     :param data: The test data
     """
     width = 100
-    heading = content_heading(obj=asdict(data), screen_w=width)
+    heading = content_heading(obj=data.content, screen_w=width)
     heading_lines = 1
     line_parts = 1
 
@@ -146,6 +145,6 @@ def test_content_heading(data: ContentHeadingEntry):
 
 def test_filter_content_keys() -> None:
     """Test filtering keys."""
-    obj = {"__key": "value", "key": "value"}
-    ret = {"key": "value"}
+    obj = PresentableEntry(__default="value", __current_value="value", name="name")
+    ret = PresentableEntry(name="name")
     assert filter_content_keys(obj) == ret

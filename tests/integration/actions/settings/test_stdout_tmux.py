@@ -25,7 +25,7 @@ stdout_tests = (
     ShellCommand(
         comment="print settings to stdout with ee",
         user_input=StdoutCommand(
-            cmdline="settings",
+            cmdline="",
             mode="stdout",
             execution_environment=True,
         ).join(),
@@ -34,7 +34,7 @@ stdout_tests = (
     ShellCommand(
         comment="print settings to stdout with no ee",
         user_input=StdoutCommand(
-            cmdline="settings",
+            cmdline="",
             mode="stdout",
             execution_environment=False,
         ).join(),
