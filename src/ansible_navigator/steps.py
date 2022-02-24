@@ -6,10 +6,11 @@ from dataclasses import field
 from typing import Any
 from typing import Callable
 from typing import Dict
+from typing import Generic
 from typing import List
-from typing import Mapping
 from typing import Optional
 from typing import Tuple
+from typing import TypeVar
 from typing import Union
 
 
@@ -127,8 +128,11 @@ class Step:
             raise ValueError(f"wanted {want}, got {type(value)}")
 
 
+TValueType = TypeVar("TValueType")
+
+
 @dataclass
-class MappingStep:
+class TypedStep(Generic[TValueType]):
     # pylint: disable=too-many-instance-attributes
     """One step in the flow of things.
 
@@ -141,9 +145,9 @@ class MappingStep:
     _index_changed: bool = False
     _index: Optional[int] = None
     _value_changed: bool = False
-    _value: List[Mapping[str, object]] = field(default_factory=list)
+    _value: List[TValueType] = field(default_factory=list)
     columns: Optional[List[str]] = None
-    select_func: Optional[Callable[[], "MappingStep"]] = None
+    select_func: Optional[Callable[[], "TypedStep"]] = None
     show_func: Optional[Callable[[], None]] = None
 
     @property
@@ -181,7 +185,7 @@ class MappingStep:
         self._index = index
 
     @property
-    def selected(self) -> Optional[Mapping[str, object]]:
+    def selected(self) -> Optional[TValueType]:
         """Return the selected item.
 
         :return: the selected item
@@ -191,7 +195,7 @@ class MappingStep:
         return self._value[self._index % len(self._value)]
 
     @property
-    def value(self) -> List[Mapping[str, object]]:
+    def value(self) -> List[TValueType]:
         """Return the value.
 
         :return: The value
@@ -199,7 +203,7 @@ class MappingStep:
         return self._value
 
     @value.setter
-    def value(self, value: List[Mapping[str, object]]) -> None:
+    def value(self, value: List[TValueType]) -> None:
         """Set the value and value changed if needed
 
         :param value: The value for this instance

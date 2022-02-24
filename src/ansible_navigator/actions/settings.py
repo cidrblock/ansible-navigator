@@ -7,7 +7,6 @@ import sys
 from dataclasses import asdict
 from typing import Dict
 from typing import List
-from typing import Mapping
 from typing import Tuple
 from typing import Union
 from typing import cast
@@ -18,7 +17,7 @@ from ..action_defs import RunStdoutReturn
 from ..app_public import AppPublic
 from ..configuration_subsystem import transform_settings
 from ..configuration_subsystem.definitions import HRSettingsEntryValue
-from ..steps import MappingStep as Step
+from ..steps import TypedStep
 from ..ui_framework import Color
 from ..ui_framework import CursesLinePart
 from ..ui_framework import CursesLines
@@ -158,7 +157,7 @@ class Action(ActionBase):
         :param args: The current settings for the application
         """
         super().__init__(args=args, logger_name=__name__, name="settings")
-        self._settings: List[Mapping[str, object]]
+        self._settings: PresentableEntries
 
     def run(self, interaction: Interaction, app: AppPublic) -> None:
         """Handle the ``settings`` subcommand in mode ``interactive``.
@@ -194,7 +193,7 @@ class Action(ActionBase):
         """
         self._logger.debug("settings requested in stdout mode")
         self._gather_settings()
-        filtered = [filter_content_keys(s) for s in cast(PresentableEntries, self._settings)]
+        filtered = [filter_content_keys(s) for s in self._settings]
         info_dump = human_dump(filtered)
         if isinstance(info_dump, str):
             print(info_dump)
@@ -204,12 +203,12 @@ class Action(ActionBase):
             return_code=1,
         )
 
-    def _build_main_menu(self) -> Step:
+    def _build_main_menu(self) -> TypedStep:
         """Build the main menu of settings.
 
         :returns: The settings menu definition
         """
-        step = Step(
+        step = TypedStep[PresentableEntry](
             name="all_options",
             columns=["name", "__default", "source", "__current_value"],
             select_func=self._build_settings_content,
@@ -218,12 +217,12 @@ class Action(ActionBase):
         step.value = self._settings
         return step
 
-    def _build_settings_content(self) -> Step:
+    def _build_settings_content(self) -> TypedStep:
         """Build the content for one settings entry.
 
         :returns: The option's content
         """
-        step = Step(
+        step = TypedStep[PresentableEntry](
             name="setting_content",
             step_type="content",
         )
@@ -252,7 +251,7 @@ class Action(ActionBase):
         result = None
         if isinstance(self.steps.current, Interaction):
             result = run_action(self.steps.current.name, self.app, self.steps.current)
-        elif isinstance(self.steps.current, Step):
+        elif isinstance(self.steps.current, TypedStep):
             if self.steps.current.show_func:
                 current_index = self.steps.current.index
                 self.steps.current.show_func()
