@@ -1,22 +1,15 @@
 """The ``settings`` subcommand action."""
 
-
-import copy
-import sys
-
 from dataclasses import asdict
-from typing import Dict
-from typing import List
 from typing import Tuple
-from typing import Union
-from typing import cast
 
 from .._yaml import human_dump
 from ..action_base import ActionBase
 from ..action_defs import RunStdoutReturn
 from ..app_public import AppPublic
-from ..configuration_subsystem import transform_settings
-from ..configuration_subsystem.definitions import HRSettingsEntryValue
+from ..configuration_subsystem import PresentableSettingsEntries
+from ..configuration_subsystem import PresentableSettingsEntry
+from ..configuration_subsystem import to_presentable
 from ..steps import TypedStep
 from ..ui_framework import Color
 from ..ui_framework import CursesLinePart
@@ -27,71 +20,7 @@ from . import _actions as actions
 from . import run_action
 
 
-if sys.version_info >= (3, 8):
-    from typing import TypedDict
-else:
-    from typing_extensions import TypedDict
-
-
-class PresentableCliParamters(TypedDict):
-    """CLI parameters prepared for the UI."""
-
-    short: str
-    """The short CLI parameter"""
-    long: str
-    """The long CLI parameter"""
-
-
-class PresentableEntry(TypedDict, total=False):
-    """A settings entry prepared for the UI."""
-
-    # pylint: disable=unused-private-member
-
-    __default: str
-    """The menu entry for is_default"""
-    __current_value: str
-    """The current value as a string for the menu"""
-
-    choices: List
-    """The possible values"""
-    cli_parameters: PresentableCliParamters
-    """The CLI parameters, long and short"""
-    current_settings_file: str
-    """The path to the current settings file"""
-    current_value: HRSettingsEntryValue
-    """The current, effective value"""
-    default: HRSettingsEntryValue
-    """The default value"""
-    description: str
-    """A short description"""
-    env_var: str
-    """The environment variable"""
-    is_default: bool
-    """Indicates if the current value == the default"""
-    name: str
-    """The name"""
-    settings_file_sample: Union[str, Dict]
-    """A sample settings file snippet"""
-    source: str
-    """The source of the current value"""
-
-
-PresentableEntries = List[PresentableEntry]
-
-
-def filter_content_keys(obj: PresentableEntry) -> PresentableEntry:
-    """Filter out some keys when showing content.
-
-    :param obj: The object to be filtered
-    :returns: The object with keys filtered out
-    """
-    show = copy.deepcopy(obj)
-    show.pop("__default")
-    show.pop("__current_value")
-    return show
-
-
-def color_menu(colno: int, colname: str, entry: PresentableEntry) -> Tuple[int, int]:
+def color_menu(colno: int, colname: str, entry: PresentableSettingsEntry) -> Tuple[int, int]:
     # pylint: disable=unused-argument
     """Color the menu.
 
@@ -100,32 +29,29 @@ def color_menu(colno: int, colname: str, entry: PresentableEntry) -> Tuple[int, 
     :param entry: Column value
     :returns: Constants that curses uses to color a line of text
     """
-    if entry["is_default"]:
+    if entry.default:
         return Color.GREEN, Color.BLACK
     return Color.YELLOW, Color.BLACK
 
 
-CONTENT_HEADING_DEFAULT = "{name} (current/default: {current_value})"
-CONTENT_HEADING_NOT_DEFAULT = "{name} (current: {current_value})  (default: {default})"
+CONTENT_HEADING_DEFAULT = "{name} (current value/default value: {current_value})"
+CONTENT_HEADING_NOT_DEFAULT = (
+    "{name} (current value: {current_value})  (default value: {default_value})"
+)
 
 
-def content_heading(obj: PresentableEntry, screen_w: int) -> CursesLines:
+def content_heading(obj: PresentableSettingsEntry, screen_w: int) -> CursesLines:
     """Create a heading for the setting entry showing.
 
     :param obj: The content going to be shown
     :param screen_w: The current screen width
     :returns: The heading
     """
-    format_fields = {
-        "name": obj["name"].replace("_", " ").upper(),
-        "current_value": obj["current_value"],
-        "default": obj["default"],
-    }
-    if obj["is_default"]:
-        text = CONTENT_HEADING_DEFAULT.format(**format_fields)
+    if obj.default:
+        text = CONTENT_HEADING_DEFAULT.format(**asdict(obj))
         color = Color.GREEN
     else:
-        text = CONTENT_HEADING_NOT_DEFAULT.format(**format_fields)
+        text = CONTENT_HEADING_NOT_DEFAULT.format(**asdict(obj))
         color = Color.YELLOW
 
     fill_characters = screen_w - len(text) + 1
@@ -157,7 +83,7 @@ class Action(ActionBase):
         :param args: The current settings for the application
         """
         super().__init__(args=args, logger_name=__name__, name="settings")
-        self._settings: PresentableEntries
+        self._settings: PresentableSettingsEntries
 
     def run(self, interaction: Interaction, app: AppPublic) -> None:
         """Handle the ``settings`` subcommand in mode ``interactive``.
@@ -169,8 +95,7 @@ class Action(ActionBase):
         """
         self._logger.debug("settings requested")
         self._prepare_to_run(app, interaction)
-
-        self._gather_settings()
+        self._settings = to_presentable(self._args)
         self.steps.append(self._build_main_menu())
 
         while True:
@@ -192,9 +117,8 @@ class Action(ActionBase):
         :returns: RunStdoutReturn
         """
         self._logger.debug("settings requested in stdout mode")
-        self._gather_settings()
-        filtered = [filter_content_keys(s) for s in self._settings]
-        info_dump = human_dump(filtered)
+        self._settings = to_presentable(self._args)
+        info_dump = human_dump(self._settings)
         if isinstance(info_dump, str):
             print(info_dump)
             return RunStdoutReturn(message="", return_code=0)
@@ -208,9 +132,9 @@ class Action(ActionBase):
 
         :returns: The settings menu definition
         """
-        step = TypedStep[PresentableEntry](
+        step = TypedStep[PresentableSettingsEntry](
             name="all_options",
-            columns=["name", "__default", "source", "__current_value"],
+            columns=["name", "default", "source", "current"],
             select_func=self._build_settings_content,
             step_type="menu",
         )
@@ -222,29 +146,13 @@ class Action(ActionBase):
 
         :returns: The option's content
         """
-        step = TypedStep[PresentableEntry](
+        step = TypedStep[PresentableSettingsEntry](
             name="setting_content",
             step_type="content",
         )
         step.index = self.steps.current.index
         step.value = self._settings
         return step
-
-    def _gather_settings(self):
-        """Gather the settings from the configuration subsystem and prepare for presentation.
-
-        The __default value is used to make the menu heading consistent with the config menu,
-        where ``is_default`` will show in the details for each setting.
-        """
-        hr_settings = transform_settings(self._args)
-        settings: PresentableEntries = []
-        for setting in hr_settings:
-            presentable = cast(PresentableEntry, asdict(setting))
-            presentable["__default"] = setting.is_default
-            presentable["__current_value"] = str(setting.current_value)
-            settings.append(presentable)
-
-        self._settings = settings
 
     def _take_step(self) -> None:
         """Take one step in the stack of steps."""
@@ -268,7 +176,6 @@ class Action(ActionBase):
                     obj=self.steps.current.value,
                     index=self.steps.current.index,
                     content_heading=content_heading,
-                    filter_content_keys=filter_content_keys,
                 )
 
         if result is None:

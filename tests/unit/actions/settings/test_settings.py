@@ -1,15 +1,18 @@
 """Unit tests for the ``settings`` action."""
 
+from dataclasses import asdict
 from dataclasses import dataclass
 
 import pytest
 
 from ansible_navigator.actions.settings import CONTENT_HEADING_DEFAULT
 from ansible_navigator.actions.settings import CONTENT_HEADING_NOT_DEFAULT
-from ansible_navigator.actions.settings import PresentableEntry
 from ansible_navigator.actions.settings import color_menu
 from ansible_navigator.actions.settings import content_heading
-from ansible_navigator.actions.settings import filter_content_keys
+from ansible_navigator.configuration_subsystem import PresentableSettingsEntry
+from ansible_navigator.configuration_subsystem.defs_presentable import (
+    PresentableCliParameters,
+)
 from ansible_navigator.ui_framework import Color
 from ansible_navigator.ui_framework import CursesLinePart
 from ansible_navigator.ui_framework import Decoration
@@ -25,7 +28,7 @@ class ColorMenuTestEntry:
     """Describe the test"""
     decoration: int
     """The test decoration"""
-    is_default: bool
+    default: bool
     """Is the current value equal to the default"""
 
     def __str__(self):
@@ -41,13 +44,13 @@ ColorMenuTestEntries = (
         comment="default/green",
         color=Color.GREEN,
         decoration=Decoration.NORMAL,
-        is_default=True,
+        default=True,
     ),
     ColorMenuTestEntry(
         comment="not default/yellow",
         color=Color.YELLOW,
         decoration=Decoration.NORMAL,
-        is_default=False,
+        default=False,
     ),
 )
 
@@ -58,7 +61,19 @@ def test_color_menu(data: ColorMenuTestEntry):
 
     :param data: A test entry
     """
-    entry = PresentableEntry(is_default=data.is_default)
+    entry = PresentableSettingsEntry(
+        choices=[],
+        current_settings_file="",
+        current_value="",
+        default=data.default,
+        default_value="",
+        description="",
+        env_var="",
+        name="",
+        settings_file_sample="",
+        source="",
+        cli_parameters=PresentableCliParameters(long="", short=""),
+    )
     assert color_menu(0, "", entry) == (data.color, data.decoration)
 
 
@@ -70,12 +85,8 @@ class ContentHeadingEntry:
     """The color for menu entry"""
     comment: str
     """Describes the test"""
-    content: PresentableEntry
+    content: PresentableSettingsEntry
     """The content"""
-
-    def __post_init__(self):
-        """Set is_default after initialization."""
-        self.content["is_default"] = self.content["current_value"] == self.content["default"]
 
     @property
     def heading(self):
@@ -87,7 +98,7 @@ class ContentHeadingEntry:
             heading = CONTENT_HEADING_DEFAULT
         else:
             heading = CONTENT_HEADING_NOT_DEFAULT
-        return heading.format(**self.content)
+        return heading.format(**asdict(self.content))
 
     def __str__(self):
         """Provide a string representation.
@@ -101,19 +112,35 @@ ContentHeadingEntries = (
     ContentHeadingEntry(
         color=Color.GREEN,
         comment="same",
-        content=PresentableEntry(
+        content=PresentableSettingsEntry(
+            choices=[],
+            current_settings_file="",
             current_value="navigator",
-            default="navigator",
+            default=True,
+            default_value="navigator",
+            description="",
+            env_var="",
             name="TEST",
+            settings_file_sample="",
+            source="",
+            cli_parameters=PresentableCliParameters(long="", short=""),
         ),
     ),
     ContentHeadingEntry(
         color=Color.YELLOW,
         comment="different",
-        content=PresentableEntry(
+        content=PresentableSettingsEntry(
+            choices=[],
+            current_settings_file="",
             current_value="ansible",
-            default="navigator",
+            default=False,
+            default_value="navigator",
+            description="",
+            env_var="",
             name="TEST",
+            settings_file_sample="",
+            source="",
+            cli_parameters=PresentableCliParameters(long="", short=""),
         ),
     ),
 )
@@ -141,10 +168,3 @@ def test_content_heading(data: ContentHeadingEntry):
     assert first_line_part.color == data.color
     assert first_line_part.column == 0
     assert data.heading in first_line_part.string
-
-
-def test_filter_content_keys() -> None:
-    """Test filtering keys."""
-    obj = PresentableEntry(__default="value", __current_value="value", name="name")
-    ret = PresentableEntry(name="name")
-    assert filter_content_keys(obj) == ret

@@ -172,6 +172,20 @@ def _prepare_content(
     return error
 
 
+class EnhancedJSONEncoder(json.JSONEncoder):
+    """An enhanced json encoder accounting for dataclasses."""
+
+    def default(self, o: Any) -> Any:
+        """Encode a dataclass as a dictionary, else simply call super.
+
+        :param o: The data needing encoding
+        :returns: The data encoded
+        """
+        if is_dataclass(o):
+            return asdict(o)
+        return super().default(o)
+
+
 class JsonParams(NamedTuple):
     """The parameters for json dump and dumps."""
 

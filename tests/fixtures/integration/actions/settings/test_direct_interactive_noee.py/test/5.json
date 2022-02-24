@@ -1,5 +1,5 @@
 {
-    "name": "test[5-:f exec-filter using a different index]",
+    "name": "test[5-:f Exec-filter using a different index]",
     "index": 5,
     "comment": "filter using a different index",
     "additional_information": {
@@ -8,12 +8,12 @@
         "compared_fixture": true
     },
     "output": [
-        "  NAME                                                                                                   DEFAULT                SOURCE                                                                  CURRENT VALUE",
-        "0│exec_command                                                                                              True                Defaults                                                                /bin/bash",
-        "1│exec_shell                                                                                                True                Defaults                                                                True",
-        "2│execution_environment                                                                                    False                Provided at command line                                                False",
-        "3│execution_environment_image                                                                               True                Defaults                                                                quay.io/ansible/creator-ee:v0.2.0",
-        "4│execution_environment_volume_mounts                                                                       True                Not set                                                                 Not set",
+        "  NAME                                                                                                   DEFAULT                SOURCE                                                                  CURRENT",
+        "0│Exec command                                                                                              True                Defaults                                                                /bin/bash",
+        "1│Exec shell                                                                                                True                Defaults                                                                True",
+        "2│Execution environment                                                                                    False                Provided at command line                                                False",
+        "3│Execution environment image                                                                               True                Defaults                                                                quay.io/ansible/creator-ee:v0.2.0",
+        "4│Execution environment volume mounts                                                                       True                Not set                                                                 Not set",
         "^f/PgUp page up                                      ^b/PgDn page down                                      ↑↓ scroll                                      esc back                                      [0-9] goto                                      :help help"
     ]
 }
