@@ -16,7 +16,7 @@ initial_steps = (
     UiTestStep(
         user_input=CLI,
         comment="ansible-navigator settings command top window",
-        present=["ansible_runner_artifact_dir", "help_playbook"],
+        present=["Ansible runner artifact dir", "Help playbook"],
     ),
 )
 

@@ -9,7 +9,6 @@ from enum import Enum
 from types import SimpleNamespace
 from typing import TYPE_CHECKING
 from typing import Any
-from typing import Dict
 from typing import Iterable
 from typing import List
 from typing import Optional
@@ -17,9 +16,6 @@ from typing import Union
 
 from ..utils import oxfordcomma
 
-
-# Some predefined types for SettingsEntries once converted to human readable (HR) structures
-HRSettingsEntryValue = Union[bool, Dict, str, List]
 
 if TYPE_CHECKING:
     from .navigator_post_processor import NavigatorPostProcessor

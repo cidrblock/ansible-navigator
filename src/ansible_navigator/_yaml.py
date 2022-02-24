@@ -2,6 +2,8 @@
 # pylint: disable=unused-import
 import re
 
+from dataclasses import asdict
+from dataclasses import is_dataclass
 from typing import Any
 from typing import NamedTuple
 from typing import Optional
@@ -69,6 +71,16 @@ class HumanDumper(Dumper):
         :returns: True, indicating aliases and anchors should not be used
         """
         return True
+
+    def represent_data(self, data: Any) -> yaml.nodes.Node:
+        """Represent a dataclass as a dictionary, else simply call super.
+
+        :param data: The data needing representation
+        :returns: The data represented
+        """
+        if is_dataclass(data):
+            return self.represent_data(asdict(data))
+        return super().represent_data(data)
 
     def represent_scalar(
         self,

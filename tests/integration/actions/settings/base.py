@@ -16,22 +16,22 @@ from ..._tmux_session import TmuxSession
 TEST_FIXTURE_DIR = os.path.join(FIXTURES_DIR, "integration/actions/settings")
 
 base_steps = (
-    UiTestStep(user_input=":f app", comment="filter for app settings"),
+    UiTestStep(user_input=":f App", comment="filter for app settings"),
     UiTestStep(user_input=":0", comment="app settings details"),
     UiTestStep(user_input=":back", comment="return to filtered settings list"),
     UiTestStep(
         user_input=":f",
         comment="clear filter, full list",
-        present=["ansible_runner_artifact_dir", "help_playbook"],
+        present=["Ansible runner artifact dir", "Help playbook"],
         mask=True,
     ),
-    UiTestStep(user_input=":f exec", comment="filter using a different index"),
+    UiTestStep(user_input=":f Exec", comment="filter using a different index"),
     UiTestStep(user_input=":3", comment="execution_environment_image details"),
     UiTestStep(user_input=":back", comment="return to filtered list"),
     UiTestStep(
         user_input=":f",
         comment="clear filter, full list",
-        present=["ansible_runner_artifact_dir", "help_playbook"],
+        present=["Ansible runner artifact dir", "Help playbook"],
         mask=True,
     ),
 )
