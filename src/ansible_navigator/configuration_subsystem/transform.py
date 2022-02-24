@@ -1,8 +1,8 @@
 """Methods of transforming the settings."""
 
 from .definitions import ApplicationConfiguration
-from .defs_presentable import PresentableSettingsEntry
 from .defs_presentable import PresentableSettingsEntries
+from .defs_presentable import PresentableSettingsEntry
 
 
 def to_presentable(settings: ApplicationConfiguration) -> PresentableSettingsEntries:

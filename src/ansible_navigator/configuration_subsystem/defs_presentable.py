@@ -13,8 +13,8 @@ from typing import Union
 from .definitions import CliParameters
 from .definitions import Constants as C
 from .definitions import SettingsEntry
-
 from .utils import create_settings_file_sample
+
 
 PresentableSettingsEntryValue = Union[bool, Dict, str, List]
 TCli = TypeVar("TCli", bound="PresentableCliParameters")
