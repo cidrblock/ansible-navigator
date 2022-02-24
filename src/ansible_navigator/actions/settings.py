@@ -194,7 +194,7 @@ class Action(ActionBase):
         """
         self._logger.debug("settings requested in stdout mode")
         self._gather_settings()
-        filtered = [filter_content_keys(s) for s in self._settings]
+        filtered = [filter_content_keys(s) for s in cast(PresentableEntries, self._settings)]
         info_dump = human_dump(filtered)
         if isinstance(info_dump, str):
             print(info_dump)
