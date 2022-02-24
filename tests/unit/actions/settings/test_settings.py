@@ -94,7 +94,7 @@ class ContentHeadingEntry:
 
         :returns: The expected heading
         """
-        if self.content["is_default"]:
+        if self.content.default:
             heading = CONTENT_HEADING_DEFAULT
         else:
             heading = CONTENT_HEADING_NOT_DEFAULT
