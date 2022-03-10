@@ -49,7 +49,16 @@ except ImportError:
     from yaml import SafeLoader  # type: ignore[misc] # noqa: F401
 # pylint: enable=unused-import
 
-ContentType = Union["ContentBase", bool, Dict[str, Any], float, int, List[Any], str]
+ContentType = Union[
+    List["ContentBase"],
+    "ContentBase",
+    bool,
+    Dict[str, Any],
+    float,
+    int,
+    List[Any],
+    str,
+]
 
 
 def serialize(
@@ -170,20 +179,6 @@ def _prepare_content(
     )
     error += f"Content view: {content_view}\n"
     return error
-
-
-class EnhancedJSONEncoder(json.JSONEncoder):
-    """An enhanced json encoder accounting for dataclasses."""
-
-    def default(self, o: Any) -> Any:
-        """Encode a dataclass as a dictionary, else simply call super.
-
-        :param o: The data needing encoding
-        :returns: The data encoded
-        """
-        if is_dataclass(o):
-            return asdict(o)
-        return super().default(o)
 
 
 class JsonParams(NamedTuple):

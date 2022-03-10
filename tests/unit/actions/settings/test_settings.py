@@ -72,6 +72,7 @@ def test_color_menu(data: ColorMenuTestEntry):
         name="",
         settings_file_sample="",
         source="",
+        subcommands=[],
         cli_parameters=PresentableCliParameters(long="", short=""),
     )
     assert color_menu(0, "", entry) == (data.color, data.decoration)
@@ -123,6 +124,7 @@ ContentHeadingEntries = (
             name="TEST",
             settings_file_sample="",
             source="",
+            subcommands=[],
             cli_parameters=PresentableCliParameters(long="", short=""),
         ),
     ),
@@ -140,6 +142,7 @@ ContentHeadingEntries = (
             name="TEST",
             settings_file_sample="",
             source="",
+            subcommands=[],
             cli_parameters=PresentableCliParameters(long="", short=""),
         ),
     ),

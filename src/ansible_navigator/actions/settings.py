@@ -3,19 +3,23 @@
 from dataclasses import asdict
 from typing import Tuple
 
-from .._yaml import human_dump
 from ..action_base import ActionBase
 from ..action_defs import RunStdoutReturn
 from ..app_public import AppPublic
 from ..configuration_subsystem import PresentableSettingsEntries
 from ..configuration_subsystem import PresentableSettingsEntry
 from ..configuration_subsystem import to_presentable
+from ..steps import StepType
 from ..steps import TypedStep
 from ..ui_framework import Color
+from ..ui_framework import ContentView
+from ..ui_framework import CursesLine
 from ..ui_framework import CursesLinePart
 from ..ui_framework import CursesLines
 from ..ui_framework import Decoration
 from ..ui_framework import Interaction
+from ..utils.serialize import SerializationFormat
+from ..utils.serialize import serialize
 from . import _actions as actions
 from . import run_action
 
@@ -57,18 +61,13 @@ def content_heading(obj: PresentableSettingsEntry, screen_w: int) -> CursesLines
     fill_characters = screen_w - len(text) + 1
     heading_line = f"{text}{' ' * fill_characters}"
 
-    heading = (
-        (
-            CursesLinePart(
-                column=0,
-                string=heading_line,
-                color=color,
-                decoration=Decoration.UNDERLINE,
-            ),
-        ),
+    line_part = CursesLinePart(
+        column=0,
+        string=heading_line,
+        color=color,
+        decoration=Decoration.UNDERLINE,
     )
-
-    return heading
+    return CursesLines((CursesLine((line_part,)),))
 
 
 @actions.register
@@ -118,7 +117,11 @@ class Action(ActionBase):
         """
         self._logger.debug("settings requested in stdout mode")
         self._settings = to_presentable(self._args)
-        info_dump = human_dump(self._settings)
+        info_dump = serialize(
+            content=list(self._settings),
+            content_view=ContentView.NORMAL,
+            serialization_format=SerializationFormat.YAML,
+        )
         if isinstance(info_dump, str):
             print(info_dump)
             return RunStdoutReturn(message="", return_code=0)
@@ -136,7 +139,7 @@ class Action(ActionBase):
             name="all_options",
             columns=["name", "default", "source", "current"],
             select_func=self._build_settings_content,
-            step_type="menu",
+            step_type=StepType.MENU,
         )
         step.value = self._settings
         return step
@@ -148,7 +151,7 @@ class Action(ActionBase):
         """
         step = TypedStep[PresentableSettingsEntry](
             name="setting_content",
-            step_type="content",
+            step_type=StepType.CONTENT,
         )
         step.index = self.steps.current.index
         step.value = self._settings
@@ -165,13 +168,13 @@ class Action(ActionBase):
                 self.steps.current.show_func()
                 self.steps.current.index = current_index
 
-            if self.steps.current.step_type == "menu":
+            if self.steps.current.step_type is StepType.MENU:
                 result = self._interaction.ui.show(
                     obj=self.steps.current.value,
                     columns=self.steps.current.columns,
                     color_menu_item=color_menu,
                 )
-            elif self.steps.current.step_type == "content":
+            elif self.steps.current.step_type is StepType.CONTENT:
                 result = self._interaction.ui.show(
                     obj=self.steps.current.value,
                     index=self.steps.current.index,
