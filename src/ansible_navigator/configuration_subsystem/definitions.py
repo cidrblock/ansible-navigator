@@ -21,10 +21,6 @@ if TYPE_CHECKING:
     from .navigator_post_processor import NavigatorPostProcessor
 
 
-if TYPE_CHECKING:
-    from .navigator_post_processor import NavigatorPostProcessor
-
-
 @dataclass
 class CliParameters:
     """An object to hold the CLI parameters."""
@@ -199,11 +195,6 @@ class ApplicationConfiguration:
     original_command: List[str] = field(default_factory=list)
 
     initial: Any = None
-
-    @property
-    def application_name_dashed(self) -> str:
-        """Generate a dashed version of the application name"""
-        return self.application_name.replace("_", "-")
 
     @property
     def application_name_dashed(self) -> str:

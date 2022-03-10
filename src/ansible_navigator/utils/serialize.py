@@ -159,7 +159,17 @@ def _prepare_content(
     content_view: "ContentView",
     serialization_format: SerializationFormat,
 ) -> ContentType:
-    if isinstance(content, (bool, dict, float, int, list, str)):
+    if isinstance(content, list):
+        if all(is_dataclass(c) for c in content):
+            return [
+                c.asdict(
+                    content_view=content_view,
+                    serialization_format=serialization_format,
+                )
+                for c in content
+            ]
+        return content
+    if isinstance(content, (bool, dict, float, int, str)):
         return content
     if is_dataclass(content):
         return content.asdict(
