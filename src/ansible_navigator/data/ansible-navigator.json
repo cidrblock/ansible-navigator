@@ -130,7 +130,7 @@
                             "type": "boolean"
                         },
                         "workdir": {
-                            "default": "/Users/ssbarnea/c/a/ansible-navigator",
+                            "default": "$CWD",
                             "description": "Specify the path that contains ansible-builder manifest files",
                             "type": "string"
                         }
@@ -163,7 +163,7 @@
                             "type": "integer"
                         },
                         "timeout": {
-                            "description": "The timeout value after which ansible-runner willforce stop the execution",
+                            "description": "The timeout value after which ansible-runner will force stop the execution",
                             "type": "integer"
                         }
                     },
@@ -189,7 +189,7 @@
                     "type": "string"
                 },
                 "collection-doc-cache-path": {
-                    "default": "/Users/ssbarnea/.cache/ansible-navigator/collection_doc_cache.db",
+                    "default": "$HOME/.cache/ansible-navigator/collection_doc_cache.db",
                     "description": "The path to collection doc cache",
                     "type": "string"
                 },
@@ -399,7 +399,7 @@
                             "type": "boolean"
                         },
                         "file": {
-                            "default": "/Users/ssbarnea/c/a/ansible-navigator/ansible-navigator.log",
+                            "default": "$CWD/ansible-navigator.log",
                             "description": "Specify the full path for the ansible-navigator log file",
                             "type": "string"
                         },
@@ -490,7 +490,7 @@
     "required": [
         "ansible-navigator"
     ],
-    "title": "ansible-navigator settings v2.0.0b1.dev9+g03b5a38.d20220405",
+    "title": "ansible-navigator settings v2.0",
     "type": "object",
-    "version": "2.0.0b1.dev9+g03b5a38.d20220405"
+    "version": "2.0"
 }
